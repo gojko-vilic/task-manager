@@ -1,0 +1,199 @@
+import { useCallback, useMemo, useState } from 'react';
+import {
+  DndContext,
+  DragOverlay,
+  closestCorners,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import type { DragStartEvent, DragEndEvent, DragOverEvent } from '@dnd-kit/core';
+import {
+  SortableContext,
+  horizontalListSortingStrategy,
+  sortableKeyboardCoordinates,
+  arrayMove,
+} from '@dnd-kit/sortable';
+import { useBoardStore, useColumnStore, useTaskStore } from '@/stores';
+import { Column } from './Column';
+import { TaskCard } from './TaskCard';
+import { AddColumnButton } from './AddColumnButton';
+import { EmptyState } from '@/components/ui';
+import type { Column as ColumnType } from '@/types';
+
+interface BoardViewProps {
+  boardId: string;
+}
+
+export function BoardView({ boardId }: BoardViewProps) {
+  const board = useBoardStore((state) => state.boards.find((b) => b.id === boardId));
+  const reorderColumns = useBoardStore((state) => state.reorderColumns);
+
+  const allColumns = useColumnStore((state) => state.columns);
+  const reorderTasks = useColumnStore((state) => state.reorderTasks);
+  const addTaskToColumn = useColumnStore((state) => state.addTaskToColumn);
+  const removeTaskFromColumn = useColumnStore((state) => state.removeTaskFromColumn);
+
+  const allTasks = useTaskStore((state) => state.tasks);
+  const updateTask = useTaskStore((state) => state.updateTask);
+
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [activeType, setActiveType] = useState<'task' | 'column' | null>(null);
+
+  // Get columns for this board
+  const columns = useMemo(() => {
+    if (!board) return [];
+    return board.columnIds
+      .map((id) => allColumns.find((c) => c.id === id))
+      .filter((c): c is ColumnType => c !== undefined);
+  }, [board, allColumns]);
+
+  const columnIds = useMemo(() => columns.map((c) => c.id), [columns]);
+
+  // Get active item for drag overlay
+  const activeTask = useMemo(() => {
+    if (activeType !== 'task' || !activeId) return null;
+    return allTasks.find((t) => t.id === activeId) ?? null;
+  }, [activeId, activeType, allTasks]);
+
+  const activeColumn = useMemo(() => {
+    if (activeType !== 'column' || !activeId) return null;
+    return columns.find((c) => c.id === activeId) ?? null;
+  }, [activeId, activeType, columns]);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 5,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+  );
+
+  const handleDragStart = useCallback((event: DragStartEvent) => {
+    const { active } = event;
+    const activeData = active.data.current;
+
+    setActiveId(active.id as string);
+    setActiveType(activeData?.type ?? null);
+  }, []);
+
+  const handleDragOver = useCallback(
+    (event: DragOverEvent) => {
+      const { active, over } = event;
+      if (!over) return;
+
+      const activeData = active.data.current;
+      const overData = over.data.current;
+
+      // Only handle task over column/task
+      if (activeData?.type !== 'task') return;
+
+      const taskId = active.id as string;
+      const task = allTasks.find((t) => t.id === taskId);
+      if (!task) return;
+
+      let targetColumnId: string | null = null;
+
+      if (overData?.type === 'column') {
+        targetColumnId = over.id as string;
+      } else if (overData?.type === 'task') {
+        const overTask = allTasks.find((t) => t.id === over.id);
+        targetColumnId = overTask?.columnId ?? null;
+      }
+
+      // Move task to different column
+      if (targetColumnId && task.columnId !== targetColumnId) {
+        removeTaskFromColumn(task.columnId, taskId);
+        addTaskToColumn(targetColumnId, taskId);
+        updateTask(taskId, { columnId: targetColumnId });
+      }
+    },
+    [allTasks, removeTaskFromColumn, addTaskToColumn, updateTask],
+  );
+
+  const handleDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      const { active, over } = event;
+
+      setActiveId(null);
+      setActiveType(null);
+
+      if (!over) return;
+
+      const activeData = active.data.current;
+      const overData = over.data.current;
+
+      // Handle column reordering
+      if (activeData?.type === 'column' && overData?.type === 'column') {
+        if (active.id !== over.id) {
+          const oldIndex = columnIds.indexOf(active.id as string);
+          const newIndex = columnIds.indexOf(over.id as string);
+          const newColumnIds = arrayMove(columnIds, oldIndex, newIndex);
+          reorderColumns(boardId, newColumnIds);
+        }
+        return;
+      }
+
+      // Handle task reordering within same column
+      if (activeData?.type === 'task' && overData?.type === 'task') {
+        const activeTask = allTasks.find((t) => t.id === active.id);
+        const overTask = allTasks.find((t) => t.id === over.id);
+
+        if (activeTask && overTask && activeTask.columnId === overTask.columnId) {
+          const column = allColumns.find((c) => c.id === activeTask.columnId);
+          if (column) {
+            const oldIndex = column.taskIds.indexOf(active.id as string);
+            const newIndex = column.taskIds.indexOf(over.id as string);
+            if (oldIndex !== -1 && newIndex !== -1 && oldIndex !== newIndex) {
+              const newTaskIds = arrayMove(column.taskIds, oldIndex, newIndex);
+              reorderTasks(column.id, newTaskIds);
+            }
+          }
+        }
+      }
+    },
+    [boardId, columnIds, allTasks, allColumns, reorderColumns, reorderTasks],
+  );
+
+  if (!board) {
+    return (
+      <EmptyState
+        title="Board not found"
+        description="The board you're looking for doesn't exist."
+      />
+    );
+  }
+
+  return (
+    <DndContext
+      sensors={sensors}
+      collisionDetection={closestCorners}
+      onDragStart={handleDragStart}
+      onDragOver={handleDragOver}
+      onDragEnd={handleDragEnd}
+    >
+      <div className="flex gap-6 h-full overflow-x-auto pb-6 px-2">
+        <SortableContext items={columnIds} strategy={horizontalListSortingStrategy}>
+          {columns.map((column) => (
+            <Column key={column.id} column={column} />
+          ))}
+        </SortableContext>
+
+        <AddColumnButton boardId={boardId} />
+      </div>
+
+      <DragOverlay>
+        {activeTask && <TaskCard task={activeTask} />}
+        {activeColumn && (
+          <div className="w-80 bg-gray-100/90 backdrop-blur-sm rounded-2xl p-4 shadow-2xl border border-gray-200">
+            <span className="font-bold text-lg text-gray-900">{activeColumn.title}</span>
+          </div>
+        )}
+      </DragOverlay>
+    </DndContext>
+  );
+}

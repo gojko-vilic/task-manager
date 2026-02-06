@@ -1,0 +1,112 @@
+import { useState, useEffect } from 'react';
+import { Modal, Button, Input, Textarea } from '@/components/ui';
+import { useBoardStore, useUIStore, useColumnStore } from '@/stores';
+
+interface BoardFormProps {
+  isOpen: boolean;
+  onClose: () => void;
+  boardId?: string | null;
+}
+
+export function BoardForm({ isOpen, onClose, boardId }: BoardFormProps) {
+  const { addBoard, updateBoard, getBoardById } = useBoardStore();
+  const { openDeleteConfirm } = useUIStore();
+
+  const existingBoard = boardId ? getBoardById(boardId) : null;
+  const isEditing = !!existingBoard;
+
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+
+  // Reset form when opening
+  useEffect(() => {
+    if (isOpen) {
+      setTitle(existingBoard?.title ?? '');
+      setDescription(existingBoard?.description ?? '');
+    }
+  }, [isOpen, existingBoard]);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!title.trim()) return;
+
+    if (isEditing && existingBoard) {
+      updateBoard(existingBoard.id, {
+        title: title.trim(),
+        description: description.trim(),
+      });
+    } else {
+      const newBoard = addBoard({
+        title: title.trim(),
+        description: description.trim(),
+      });
+
+      // Create default columns for new board
+      const { addColumn } = useColumnStore.getState();
+      const { addColumnToBoard } = useBoardStore.getState();
+
+      const defaultColumns = ['To Do', 'In Progress', 'Done'];
+      defaultColumns.forEach((colTitle) => {
+        const column = addColumn({ title: colTitle, boardId: newBoard.id });
+        addColumnToBoard(newBoard.id, column.id);
+      });
+    }
+
+    onClose();
+  };
+
+  const handleDelete = () => {
+    if (existingBoard) {
+      openDeleteConfirm('board', existingBoard.id, existingBoard.title);
+    }
+  };
+
+  return (
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={isEditing ? 'Edit Board' : 'Create Board'}
+      size="md"
+    >
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <Input
+          id="board-title"
+          label="Board Name"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="e.g., Marketing Campaign"
+          required
+        />
+
+        <Textarea
+          id="board-description"
+          label="Description (optional)"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          placeholder="What is this board for?"
+          rows={3}
+        />
+
+        {/* Actions */}
+        <div className="flex justify-between pt-4">
+          {isEditing ? (
+            <Button type="button" variant="danger" onClick={handleDelete}>
+              Delete Board
+            </Button>
+          ) : (
+            <div />
+          )}
+          <div className="flex gap-2">
+            <Button type="button" variant="secondary" onClick={onClose}>
+              Cancel
+            </Button>
+            <Button type="submit" disabled={!title.trim()}>
+              {isEditing ? 'Save Changes' : 'Create Board'}
+            </Button>
+          </div>
+        </div>
+      </form>
+    </Modal>
+  );
+}
