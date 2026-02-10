@@ -178,7 +178,7 @@ export function BoardView({ boardId }: BoardViewProps) {
       onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
     >
-      <div className="flex gap-6 h-full overflow-x-auto pb-6 px-2">
+      <div className="flex gap-4 h-full overflow-x-auto pb-6 px-2">
         <SortableContext items={columnIds} strategy={horizontalListSortingStrategy}>
           {columns.map((column) => (
             <Column key={column.id} column={column} />

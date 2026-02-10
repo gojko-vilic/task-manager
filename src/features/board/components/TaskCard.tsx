@@ -40,7 +40,7 @@ export const TaskCard = memo(function TaskCard({ task }: TaskCardProps) {
       {...listeners}
       onClick={handleClick}
       className={cn(
-        'bg-white rounded-xl shadow-sm border border-gray-200 p-4 cursor-pointer',
+        'bg-white rounded-lg shadow-sm border border-gray-200 px-4 py-3 cursor-pointer',
         'hover:shadow-lg hover:border-indigo-200 hover:-translate-y-0.5 transition-all duration-200',
         isDragging && 'opacity-50 shadow-xl rotate-2 scale-105',
       )}
@@ -66,23 +66,23 @@ export const TaskCard = memo(function TaskCard({ task }: TaskCardProps) {
       )}
 
       {/* Title */}
-      <h4 className="font-semibold text-gray-900 mb-2 line-clamp-2 text-base leading-snug">
+      <h4 className="font-semibold text-gray-900 mb-2 line-clamp-2 text-sm leading-normal">
         {task.title}
       </h4>
 
       {/* Description preview */}
       {task.description && (
-        <p className="text-sm text-gray-500 mb-4 line-clamp-2 leading-relaxed">
+        <p className="text-xs text-gray-500 mb-3 line-clamp-2 leading-relaxed">
           {task.description}
         </p>
       )}
 
       {/* Footer */}
-      <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+      <div className="flex items-center justify-between pt-3 border-t border-gray-100">
         {/* Priority Badge */}
         <span
           className={cn(
-            'px-3 py-1 text-xs font-semibold rounded-full capitalize',
+            'px-2.5 py-0.5 text-xs font-semibold rounded-full capitalize',
             priorityStyle.bg,
             priorityStyle.text,
           )}
