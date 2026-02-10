@@ -3,7 +3,7 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import type { Task } from '@/types';
 import { cn, priorityColors, formatDate, isOverdue } from '@/utils';
-import { useUIStore } from '@/stores';
+import { useUIStore } from '@/features/ui';
 
 interface TaskCardProps {
   task: Task;

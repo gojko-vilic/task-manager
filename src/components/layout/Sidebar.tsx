@@ -1,4 +1,5 @@
-import { useBoardStore, useUIStore } from '@/stores';
+import { useBoardStore } from '@/features/board';
+import { useUIStore } from '@/features/ui';
 import { Button } from '@/components/ui';
 import { cn } from '@/utils';
 

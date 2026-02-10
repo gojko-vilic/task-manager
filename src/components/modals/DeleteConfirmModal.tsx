@@ -1,5 +1,8 @@
 import { ConfirmDialog } from '@/components/ui';
-import { useUIStore, useBoardStore, useColumnStore, useTaskStore } from '@/stores';
+import { useUIStore } from '@/features/ui';
+import { useBoardStore } from '@/features/board';
+import { useColumnStore } from '@/features/column';
+import { useTaskStore } from '@/features/task';
 
 export function DeleteConfirmModal() {
   const { activeModal, deleteConfirmData, closeDeleteConfirm, closeModal } = useUIStore();

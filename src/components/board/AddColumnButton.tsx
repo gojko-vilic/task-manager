@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Button, Input } from '@/components/ui';
-import { useColumnStore, useBoardStore } from '@/stores';
+import { useColumnStore } from '@/features/column';
+import { useBoardStore } from '@/features/board';
 
 interface AddColumnButtonProps {
   boardId: string;
