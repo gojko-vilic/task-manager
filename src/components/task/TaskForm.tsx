@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Modal, Button, Input, Textarea, Select } from '@/components/ui';
-import { useTaskStore, useColumnStore, useBoardStore, useUIStore } from '@/stores';
+import { useTaskStore } from '@/features/task';
+import { useColumnStore } from '@/features/column';
+import { useBoardStore } from '@/features/board';
+import { useUIStore } from '@/features/ui';
 import type { Priority, Label, CreateTaskInput } from '@/types';
 import { generateLabelColor } from '@/utils';
 import { v4 as uuidv4 } from 'uuid';

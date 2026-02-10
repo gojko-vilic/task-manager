@@ -1,4 +1,6 @@
-import { useBoardStore, useUIStore, useTaskStore } from '@/stores';
+import { useBoardStore } from '@/features/board';
+import { useUIStore } from '@/features/ui';
+import { useTaskStore } from '@/features/task';
 import { Input } from '@/components/ui';
 
 export function Header() {

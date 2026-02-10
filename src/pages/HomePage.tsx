@@ -1,4 +1,5 @@
-import { useBoardStore, useUIStore } from '@/stores';
+import { useBoardStore } from '@/features/board';
+import { useUIStore } from '@/features/ui';
 import { MainLayout } from '@/components/layout';
 import { BoardView } from '@/components/board';
 import { TaskForm } from '@/components/task';

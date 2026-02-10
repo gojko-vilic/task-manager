@@ -15,7 +15,9 @@ import {
   sortableKeyboardCoordinates,
   arrayMove,
 } from '@dnd-kit/sortable';
-import { useBoardStore, useColumnStore, useTaskStore } from '@/stores';
+import { useBoardStore } from '@/features/board';
+import { useColumnStore } from '@/features/column';
+import { useTaskStore } from '@/features/task';
 import { Column } from './Column';
 import { TaskCard } from './TaskCard';
 import { AddColumnButton } from './AddColumnButton';

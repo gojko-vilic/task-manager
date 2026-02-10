@@ -3,7 +3,9 @@ import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-
 import { CSS } from '@dnd-kit/utilities';
 import { useDroppable } from '@dnd-kit/core';
 import type { Column as ColumnType } from '@/types';
-import { useTaskStore, useColumnStore, useUIStore } from '@/stores';
+import { useTaskStore } from '@/features/task';
+import { useColumnStore } from '@/features/column';
+import { useUIStore } from '@/features/ui';
 import { TaskCard } from './TaskCard';
 import { cn } from '@/utils';
 

@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Modal, Button, Input, Textarea } from '@/components/ui';
-import { useBoardStore, useUIStore, useColumnStore } from '@/stores';
+import { useBoardStore } from '@/features/board';
+import { useUIStore } from '@/features/ui';
+import { useColumnStore } from '@/features/column';
 
 interface BoardFormProps {
   isOpen: boolean;

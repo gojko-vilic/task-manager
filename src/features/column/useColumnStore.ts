@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { v4 as uuidv4 } from 'uuid';
 
-import { STORAGE_KEYS } from './storage.constants';
+import { STORAGE_KEYS } from '@/utils';
 import type { Column, CreateColumnInput } from '@/types';
 
 interface ColumnStore {
