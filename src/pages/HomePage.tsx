@@ -1,9 +1,8 @@
-import { useBoardStore } from '@/features/board';
+import { useBoardStore, BoardView, BoardForm } from '@/features/board';
+import { TaskForm } from '@/features/task';
 import { useUIStore } from '@/features/ui';
 import { MainLayout } from '@/components/layout';
-import { BoardView } from '@/components/board';
-import { TaskForm } from '@/components/task';
-import { BoardForm, DeleteConfirmModal } from '@/components/modals';
+import { DeleteConfirmModal } from '@/components/modals';
 import { EmptyState, Button } from '@/components/ui';
 
 export function HomePage() {
