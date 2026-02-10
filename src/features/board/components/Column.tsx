@@ -93,7 +93,7 @@ export function Column({ column }: ColumnProps) {
       ref={setSortableRef}
       style={style}
       className={cn(
-        'flex-shrink-0 w-80 bg-gray-100/80 backdrop-blur-sm rounded-2xl flex flex-col max-h-full shadow-sm',
+        'flex-shrink-0 w-[340px] bg-gray-100/80 backdrop-blur-sm rounded-lg flex flex-col max-h-full shadow-sm',
         isDragging && 'opacity-50 shadow-lg',
       )}
     >
@@ -137,7 +137,7 @@ export function Column({ column }: ColumnProps) {
       </div>
 
       {/* Tasks List */}
-      <div ref={setDroppableRef} className="flex-1 overflow-y-auto p-4 space-y-3">
+      <div ref={setDroppableRef} className="flex-1 overflow-y-auto px-3 py-3 space-y-2">
         <SortableContext items={taskIds} strategy={verticalListSortingStrategy}>
           {filteredTasks.map((task) => (
             <TaskCard key={task.id} task={task} />
