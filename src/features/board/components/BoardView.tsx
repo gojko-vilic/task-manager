@@ -2,13 +2,20 @@ import { useCallback, useMemo, useState } from 'react';
 import {
   DndContext,
   DragOverlay,
-  closestCorners,
+  closestCenter,
+  pointerWithin,
+  rectIntersection,
   KeyboardSensor,
   PointerSensor,
   useSensor,
   useSensors,
 } from '@dnd-kit/core';
-import type { DragStartEvent, DragEndEvent, DragOverEvent } from '@dnd-kit/core';
+import type {
+  DragStartEvent,
+  DragEndEvent,
+  DragOverEvent,
+  CollisionDetection,
+} from '@dnd-kit/core';
 import {
   SortableContext,
   horizontalListSortingStrategy,
@@ -75,6 +82,46 @@ export function BoardView({ boardId }: BoardViewProps) {
     }),
   );
 
+  // Custom collision detection that handles column vs task dragging properly
+  const collisionDetection: CollisionDetection = useCallback((args) => {
+    const activeData = args.active.data.current;
+
+    // For column dragging, only consider other column sortable containers (not tasks inside them)
+    if (activeData?.type === 'column') {
+      const columnContainers = args.droppableContainers.filter((container) => {
+        const data = container.data.current;
+        return data?.type === 'column' && !String(container.id).endsWith('-droppable');
+      });
+      return closestCenter({
+        ...args,
+        droppableContainers: columnContainers,
+      });
+    }
+
+    // For task dragging, first check what the pointer is within
+    const pointerCollisions = pointerWithin(args);
+
+    if (pointerCollisions.length > 0) {
+      // Prefer task collisions for reordering within a column
+      const taskCollision = pointerCollisions.find(
+        (c) => c.data?.droppableContainer?.data?.current?.type === 'task',
+      );
+      if (taskCollision) return [taskCollision];
+
+      // Otherwise return the first column droppable
+      const columnCollision = pointerCollisions.find((c) => {
+        const data = c.data?.droppableContainer?.data?.current;
+        return data?.type === 'column';
+      });
+      if (columnCollision) return [columnCollision];
+
+      return pointerCollisions;
+    }
+
+    // Fallback to rect intersection
+    return rectIntersection(args);
+  }, []);
+
   const handleDragStart = useCallback((event: DragStartEvent) => {
     const { active } = event;
     const activeData = active.data.current;
@@ -101,7 +148,8 @@ export function BoardView({ boardId }: BoardViewProps) {
       let targetColumnId: string | null = null;
 
       if (overData?.type === 'column') {
-        targetColumnId = over.id as string;
+        // Handle both direct column ID and suffixed droppable ID
+        targetColumnId = overData.columnId ?? (over.id as string);
       } else if (overData?.type === 'task') {
         const overTask = allTasks.find((t) => t.id === over.id);
         targetColumnId = overTask?.columnId ?? null;
@@ -173,7 +221,7 @@ export function BoardView({ boardId }: BoardViewProps) {
   return (
     <DndContext
       sensors={sensors}
-      collisionDetection={closestCorners}
+      collisionDetection={collisionDetection}
       onDragStart={handleDragStart}
       onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}

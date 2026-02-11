@@ -66,9 +66,10 @@ export function Column({ column }: ColumnProps) {
   });
 
   const { setNodeRef: setDroppableRef } = useDroppable({
-    id: column.id,
+    id: `${column.id}-droppable`,
     data: {
       type: 'column',
+      columnId: column.id,
       column,
     },
   });
