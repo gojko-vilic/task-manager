@@ -178,7 +178,7 @@ export function BoardView({ boardId }: BoardViewProps) {
       onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
     >
-      <div className="flex gap-4 h-full overflow-x-auto pb-6 px-2">
+      <div className="flex gap-2 h-full overflow-x-auto pb-6 px-2">
         <SortableContext items={columnIds} strategy={horizontalListSortingStrategy}>
           {columns.map((column) => (
             <Column key={column.id} column={column} />
@@ -188,11 +188,32 @@ export function BoardView({ boardId }: BoardViewProps) {
         <AddColumnButton boardId={boardId} />
       </div>
 
-      <DragOverlay>
+      <DragOverlay dropAnimation={{ duration: 200, easing: 'ease-out' }}>
         {activeTask && <TaskCard task={activeTask} />}
         {activeColumn && (
-          <div className="w-80 bg-gray-100/90 backdrop-blur-sm rounded-2xl p-4 shadow-2xl border border-gray-200">
-            <span className="font-bold text-lg text-gray-900">{activeColumn.title}</span>
+          <div className="w-[340px] bg-gray-100/90 backdrop-blur-sm rounded-lg flex flex-col max-h-[80vh] shadow-2xl border border-gray-200/60 ring-2 ring-indigo-300/40">
+            {/* Column Header */}
+            <div className="flex items-center gap-3 p-4 border-b border-gray-200/50">
+              <span className="font-bold text-lg text-gray-900">{activeColumn.title}</span>
+              <span className="text-sm font-medium text-gray-500 bg-gray-200/80 rounded-full px-3 py-1">
+                {activeColumn.taskIds.length}
+              </span>
+            </div>
+            {/* Column Tasks */}
+            <div className="flex-1 overflow-hidden px-3 py-3 space-y-2">
+              {activeColumn.taskIds
+                .map((id) => allTasks.find((t) => t.id === id))
+                .filter(Boolean)
+                .slice(0, 5)
+                .map((task) => (
+                  <TaskCard key={task!.id} task={task!} />
+                ))}
+              {activeColumn.taskIds.length > 5 && (
+                <p className="text-xs text-center text-gray-400 py-1">
+                  +{activeColumn.taskIds.length - 5} more
+                </p>
+              )}
+            </div>
           </div>
         )}
       </DragOverlay>
