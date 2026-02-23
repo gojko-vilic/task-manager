@@ -1,30 +1,3 @@
-// Task priority levels
-export type Priority = 'low' | 'medium' | 'high';
-
-// Task status
-export type TaskStatus = 'todo' | 'in-progress' | 'done';
-
-// Label/Tag for tasks
-export interface Label {
-  id: string;
-  name: string;
-  color: string;
-}
-
-// Individual task
-export interface Task {
-  id: string;
-  title: string;
-  description: string;
-  priority: Priority;
-  dueDate: string | null;
-  labels: Label[];
-  columnId: string;
-  boardId: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
 // Column within a board
 export interface Column {
   id: string;
@@ -67,25 +40,7 @@ export type ModalType =
   | 'edit-board'
   | 'delete-confirm';
 
-// Form types
-export interface CreateTaskInput {
-  title: string;
-  description: string;
-  priority: Priority;
-  dueDate: string | null;
-  labels: Label[];
-  columnId: string;
-  boardId: string;
-}
-
-export interface UpdateTaskInput {
-  title?: string;
-  description?: string;
-  priority?: Priority;
-  dueDate?: string | null;
-  labels?: Label[];
-  columnId?: string;
-}
+// Form types — task-related form types re-exported above from task.types.ts
 
 export interface CreateBoardInput {
   title: string;

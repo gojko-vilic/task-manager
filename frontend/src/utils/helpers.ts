@@ -1,4 +1,4 @@
-import type { Priority } from '@/types';
+import type { Priority } from '@/features/task';
 
 // Priority color mappings
 export const priorityColors: Record<Priority, { bg: string; text: string; border: string }> = {

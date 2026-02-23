@@ -3,7 +3,7 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import { v4 as uuidv4 } from 'uuid';
 
 import { STORAGE_KEYS } from '@/utils';
-import type { Task, CreateTaskInput, UpdateTaskInput, Priority } from '@/types';
+import type { Task, CreateTaskInput, UpdateTaskInput, Priority } from './task.types';
 
 interface TaskFilters {
   search: string;

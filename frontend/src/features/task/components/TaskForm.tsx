@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
+import { useForm, useFieldArray } from 'react-hook-form';
 import { Modal, Button, Input, Textarea, Select } from '@/components/ui';
 import { useTaskStore } from '@/features/task';
 import { useColumnStore } from '@/features/column';
 import { useBoardStore } from '@/features/board';
 import { useUIStore } from '@/features/ui';
-import type { Priority, Label, CreateTaskInput } from '@/types';
+import type { Priority, Label, CreateTaskInput } from '../task.types';
 import { generateLabelColor } from '@/utils';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -12,6 +13,16 @@ interface TaskFormProps {
   isOpen: boolean;
   onClose: () => void;
   taskId?: string | null;
+}
+
+/** Shape of the form fields managed by react-hook-form */
+interface TaskFormValues {
+  title: string;
+  description: string;
+  priority: Priority;
+  dueDate: string;
+  columnId: string;
+  labels: Label[];
 }
 
 const priorityOptions = [
@@ -30,101 +41,120 @@ export function TaskForm({ isOpen, onClose, taskId }: TaskFormProps) {
   const isEditing = !!existingTask;
 
   const columns = activeBoardId ? getColumnsByBoardId(activeBoardId) : [];
-
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [priority, setPriority] = useState<Priority>('medium');
-  const [dueDate, setDueDate] = useState('');
-  const [columnId, setColumnId] = useState('');
-  const [labels, setLabels] = useState<Label[]>([]);
-  const [newLabelName, setNewLabelName] = useState('');
-
-  // Get the first column ID (stable reference)
   const firstColumnId = columns[0]?.id ?? '';
 
-  // Reset form when modal opens
+  // ── react-hook-form setup ──────────────────────────────
+  const {
+    register,
+    handleSubmit,
+    reset,
+    control,
+    formState: { errors, isSubmitting },
+  } = useForm<TaskFormValues>({
+    defaultValues: {
+      title: '',
+      description: '',
+      priority: 'medium',
+      dueDate: '',
+      columnId: firstColumnId,
+      labels: [],
+    },
+  });
+
+  // useFieldArray manages the labels array without manual useState
+  const {
+    fields: labels,
+    append: appendLabel,
+    remove: removeLabel,
+  } = useFieldArray({
+    control,
+    name: 'labels',
+  });
+
+  // Local state only for the label name input (not part of submitted data)
+  const [newLabelName, setNewLabelName] = useState('');
+
+  // Reset form values when modal opens or task changes
   useEffect(() => {
     if (isOpen) {
       if (existingTask) {
-        setTitle(existingTask.title);
-        setDescription(existingTask.description);
-        setPriority(existingTask.priority);
-        setDueDate(existingTask.dueDate ?? '');
-        setColumnId(existingTask.columnId);
-        setLabels([...existingTask.labels]);
+        reset({
+          title: existingTask.title,
+          description: existingTask.description,
+          priority: existingTask.priority,
+          dueDate: existingTask.dueDate ?? '',
+          columnId: existingTask.columnId,
+          labels: [...existingTask.labels],
+        });
       } else {
-        setTitle('');
-        setDescription('');
-        setPriority('medium');
-        setDueDate('');
-        setColumnId(firstColumnId);
-        setLabels([]);
+        reset({
+          title: '',
+          description: '',
+          priority: 'medium',
+          dueDate: '',
+          columnId: firstColumnId,
+          labels: [],
+        });
       }
       setNewLabelName('');
     }
-  }, [isOpen, taskId, firstColumnId]);
+  }, [isOpen, taskId, firstColumnId, reset]);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!title.trim() || !columnId || !activeBoardId) return;
+  // ── Submit handler — receives validated data from RHF ──
+  const onSubmit = (data: TaskFormValues) => {
+    console.log('DATA', data);
+    if (!activeBoardId) return;
 
     if (isEditing && existingTask) {
-      // Check if column changed
-      const columnChanged = existingTask.columnId !== columnId;
+      const columnChanged = existingTask.columnId !== data.columnId;
 
       updateTask(existingTask.id, {
-        title: title.trim(),
-        description: description.trim(),
-        priority,
-        dueDate: dueDate || null,
-        labels,
-        columnId,
+        title: data.title.trim(),
+        description: data.description.trim(),
+        priority: data.priority,
+        dueDate: data.dueDate || null,
+        labels: data.labels,
+        columnId: data.columnId,
       });
 
-      // Update column task lists if column changed
       if (columnChanged) {
         removeTaskFromColumn(existingTask.columnId, existingTask.id);
-        addTaskToColumn(columnId, existingTask.id);
+        addTaskToColumn(data.columnId, existingTask.id);
       }
     } else {
       const input: CreateTaskInput = {
-        title: title.trim(),
-        description: description.trim(),
-        priority,
-        dueDate: dueDate || null,
-        labels,
-        columnId,
+        title: data.title.trim(),
+        description: data.description.trim(),
+        priority: data.priority,
+        dueDate: data.dueDate || null,
+        labels: data.labels,
+        columnId: data.columnId,
         boardId: activeBoardId,
       };
 
       const newTask = addTask(input);
-      addTaskToColumn(columnId, newTask.id);
+      addTaskToColumn(data.columnId, newTask.id);
     }
 
     onClose();
+  };
+
+  // ── Label helpers ──────────────────────────────────────
+  const handleAddLabel = () => {
+    if (newLabelName.trim()) {
+      appendLabel({
+        id: uuidv4(),
+        name: newLabelName.trim(),
+        color: generateLabelColor(),
+      });
+      setNewLabelName('');
+    }
   };
 
   const handleDelete = () => {
     if (existingTask) {
       openDeleteConfirm('task', existingTask.id, existingTask.title);
     }
-  };
-
-  const handleAddLabel = () => {
-    if (newLabelName.trim()) {
-      const newLabel: Label = {
-        id: uuidv4(),
-        name: newLabelName.trim(),
-        color: generateLabelColor(),
-      };
-      setLabels([...labels, newLabel]);
-      setNewLabelName('');
-    }
-  };
-
-  const handleRemoveLabel = (labelId: string) => {
-    setLabels(labels.filter((l) => l.id !== labelId));
   };
 
   const columnOptions = columns.map((col) => ({
@@ -139,56 +169,50 @@ export function TaskForm({ isOpen, onClose, taskId }: TaskFormProps) {
       title={isEditing ? 'Edit Task' : 'Create Task'}
       size="lg"
     >
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <Input
           id="title"
           label="Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
           placeholder="Enter task title..."
-          required
+          error={errors.title?.message}
+          {...register('title', {
+            required: 'Title is required',
+            validate: (v) => v.trim().length > 0 || 'Title cannot be empty',
+          })}
         />
 
         <Textarea
           id="description"
           label="Description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
           placeholder="Enter task description..."
           rows={3}
+          {...register('description')}
         />
 
         <div className="grid grid-cols-2 gap-4">
           <Select
             id="priority"
             label="Priority"
-            value={priority}
-            onChange={(e) => setPriority(e.target.value as Priority)}
             options={priorityOptions}
+            {...register('priority')}
           />
 
           <Select
             id="column"
             label="Column"
-            value={columnId}
-            onChange={(e) => setColumnId(e.target.value)}
             options={columnOptions}
+            error={errors.columnId?.message}
+            {...register('columnId', { required: 'Column is required' })}
           />
         </div>
 
-        <Input
-          id="dueDate"
-          label="Due Date"
-          type="date"
-          value={dueDate}
-          onChange={(e) => setDueDate(e.target.value)}
-        />
+        <Input id="dueDate" label="Due Date" type="date" {...register('dueDate')} />
 
-        {/* Labels */}
+        {/* Labels (managed by useFieldArray) */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Labels</label>
           <div className="flex flex-wrap gap-2 mb-2">
-            {labels.map((label) => (
+            {labels.map((label, index) => (
               <span
                 key={label.id}
                 className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs text-white"
@@ -197,7 +221,7 @@ export function TaskForm({ isOpen, onClose, taskId }: TaskFormProps) {
                 {label.name}
                 <button
                   type="button"
-                  onClick={() => handleRemoveLabel(label.id)}
+                  onClick={() => removeLabel(index)}
                   className="hover:opacity-70"
                 >
                   ×
@@ -241,7 +265,7 @@ export function TaskForm({ isOpen, onClose, taskId }: TaskFormProps) {
             <Button type="button" variant="secondary" onClick={onClose}>
               Cancel
             </Button>
-            <Button type="submit" disabled={!title.trim() || !columnId}>
+            <Button type="submit" disabled={isSubmitting}>
               {isEditing ? 'Save Changes' : 'Create Task'}
             </Button>
           </div>
