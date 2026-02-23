@@ -1,4 +1,4 @@
-import { QueryProvider } from '@/api';
+import { QueryProvider } from '@/lib';
 import { HomePage } from '@/pages';
 
 function App() {
