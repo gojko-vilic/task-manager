@@ -79,6 +79,13 @@ export function Column({ column }: ColumnProps) {
     transition,
   };
 
+  /**
+   * Handles changes to the column title.
+   * Updates the column with the new title if it's not empty and different from the current title.
+   * The title is trimmed of whitespace before updating.
+   *
+   * @param newTitle - The new title for the column
+   */
   const handleTitleChange = (newTitle: string) => {
     if (newTitle.trim() && newTitle !== column.title) {
       updateColumn(column.id, { title: newTitle.trim() });
