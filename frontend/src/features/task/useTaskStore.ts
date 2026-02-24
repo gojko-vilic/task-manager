@@ -3,7 +3,7 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import { v4 as uuidv4 } from 'uuid';
 
 import { STORAGE_KEYS } from '@/utils';
-import type { Task, CreateTaskInput, UpdateTaskInput, Priority } from './task.types';
+import type { Task, CreateTask, UpdateTask, Priority } from './task.types';
 
 interface TaskFilters {
   search: string;
@@ -23,8 +23,8 @@ interface TaskStore {
   filters: TaskFilters;
 
   // Actions
-  addTask: (input: CreateTaskInput) => Task;
-  updateTask: (id: string, updates: UpdateTaskInput) => void;
+  addTask: (input: CreateTask) => Task;
+  updateTask: (id: string, updates: UpdateTask) => void;
   deleteTask: (id: string) => void;
   deleteTasksByBoardId: (boardId: string) => void;
   deleteTasksByColumnId: (columnId: string) => void;
@@ -49,7 +49,7 @@ export const useTaskStore = create(
       filters: DEFAULT_FILTERS,
 
       // Add a new task
-      addTask: (input: CreateTaskInput): Task => {
+      addTask: (input: CreateTask): Task => {
         const newTask: Task = {
           id: uuidv4(),
           title: input.title,
@@ -71,7 +71,7 @@ export const useTaskStore = create(
       },
 
       // Update an existing task's properties
-      updateTask: (id: string, updates: UpdateTaskInput): void => {
+      updateTask: (id: string, updates: UpdateTask): void => {
         set((state) => ({
           tasks: state.tasks.map((task) =>
             task.id === id ? { ...task, ...updates, updatedAt: new Date().toISOString() } : task,

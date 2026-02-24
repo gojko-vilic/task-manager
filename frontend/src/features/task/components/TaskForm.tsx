@@ -2,10 +2,11 @@ import { useState, useEffect } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { Modal, Button, Input, Textarea, Select } from '@/components/ui';
 import { useTaskStore } from '@/features/task';
+import { taskRepo } from '../task.repo';
 import { useColumnStore } from '@/features/column';
 import { useBoardStore } from '@/features/board';
 import { useUIStore } from '@/features/ui';
-import type { Priority, Label, CreateTaskInput } from '../task.types';
+import type { Priority, Label, CreateTask } from '../task.types';
 import { generateLabelColor } from '@/utils';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -101,11 +102,11 @@ export function TaskForm({ isOpen, onClose, taskId }: TaskFormProps) {
   }, [isOpen, taskId, firstColumnId, reset]);
 
   // ── Submit handler — receives validated data from RHF ──
-  const onSubmit = (data: TaskFormValues) => {
-    console.log('DATA', data);
+  const onSubmit = async (data: TaskFormValues) => {
     if (!activeBoardId) return;
 
     if (isEditing && existingTask) {
+      // Edit still uses Zustand (update API coming later)
       const columnChanged = existingTask.columnId !== data.columnId;
 
       updateTask(existingTask.id, {
@@ -122,7 +123,8 @@ export function TaskForm({ isOpen, onClose, taskId }: TaskFormProps) {
         addTaskToColumn(data.columnId, existingTask.id);
       }
     } else {
-      const input: CreateTaskInput = {
+      // ── Create: call the backend API ──
+      const payload: CreateTask = {
         title: data.title.trim(),
         description: data.description.trim(),
         priority: data.priority,
@@ -132,8 +134,16 @@ export function TaskForm({ isOpen, onClose, taskId }: TaskFormProps) {
         boardId: activeBoardId,
       };
 
-      const newTask = addTask(input);
-      addTaskToColumn(data.columnId, newTask.id);
+      try {
+        const created = await taskRepo.createTask(payload);
+        // Also save to Zustand so the UI updates immediately
+        // (later React Query will handle this)
+        addTask(payload);
+        addTaskToColumn(data.columnId, created.id);
+      } catch (error) {
+        console.error('Failed to create task:', error);
+        return; // Don't close the modal on error
+      }
     }
 
     onClose();
