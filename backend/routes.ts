@@ -1,17 +1,26 @@
-import { createTask } from './service.js';
+import type { IncomingMessage, ServerResponse } from 'http';
+import { createTask, readTasks, writeTasks } from './service.js';
 
-export const requestHandler = (req, res) => {
+export const requestHandler = (req: IncomingMessage, res: ServerResponse): void => {
   const { method, url } = req;
+
+  // CORS + default content-type
   res.writeHead(200, {
-    'Content-Type': 'application/json', // Tell browser: "this is JSON"
-    'Access-Control-Allow-Origin': '*', // Allow frontend to call this API (CORS)
+    'Content-Type': 'application/json',
+    'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type',
   });
 
+  // Preflight
+  if (method === 'OPTIONS') {
+    res.end();
+    return;
+  }
+
   if (method === 'POST' && url === '/api/tasks') {
     let body = '';
-    req.on('data', (chunk) => {
+    req.on('data', (chunk: Buffer) => {
       body += chunk.toString();
     });
     req.on('end', () => {
@@ -19,12 +28,15 @@ export const requestHandler = (req, res) => {
       try {
         const input = JSON.parse(body);
         const newTask = createTask(input);
+        const tasks = readTasks();
         tasks.push(newTask);
+        writeTasks(tasks);
         console.log('Created task:', newTask);
       } catch (err) {
         console.error('Error parsing JSON:', err);
         res.statusCode = 400;
-        return res.end('Invalid JSON\n');
+        res.end('Invalid JSON\n');
+        return;
       }
       res.end('Data received\n');
     });
@@ -32,6 +44,7 @@ export const requestHandler = (req, res) => {
   }
 
   if (method === 'GET' && url === '/api/tasks') {
+    const tasks = readTasks();
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify(tasks));
     return;
