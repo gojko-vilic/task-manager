@@ -23,7 +23,7 @@ export interface Task {
   updatedAt: string;
 }
 
-export interface CreateTaskInput {
+export interface CreateTask {
   title: string;
   description: string;
   priority: Priority;
@@ -33,7 +33,7 @@ export interface CreateTaskInput {
   boardId: string;
 }
 
-export interface UpdateTaskInput {
+export interface UpdateTask {
   title?: string;
   description?: string;
   priority?: Priority;
