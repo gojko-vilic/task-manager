@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import { ConfirmDialog } from '@/components/ui';
 import { useUIStore } from '@/features/ui';
 import { useBoardStore } from '@/features/board';
@@ -5,6 +6,7 @@ import { useColumnStore } from '@/features/column';
 import { useTaskStore } from '@/features/task';
 
 export function DeleteConfirmModal() {
+  const navigate = useNavigate();
   const { activeModal, deleteConfirmData, closeDeleteConfirm, closeModal } = useUIStore();
   const { deleteBoard } = useBoardStore();
   const { deleteColumn, removeTaskFromColumn } = useColumnStore();
@@ -49,6 +51,7 @@ export function DeleteConfirmModal() {
           deleteColumn(col.id);
         });
         deleteBoard(id);
+        navigate('/');
         break;
       }
     }

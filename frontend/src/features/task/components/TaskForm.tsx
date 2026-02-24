@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { Modal, Button, Input, Textarea, Select } from '@/components/ui';
 import { useTaskStore } from '@/features/task';
 import { taskRepo } from '../task.repo';
 import { useColumnStore } from '@/features/column';
-import { useBoardStore } from '@/features/board';
 import { useUIStore } from '@/features/ui';
 import type { Priority, Label, CreateTask } from '../task.types';
 import { generateLabelColor } from '@/utils';
@@ -33,15 +33,15 @@ const priorityOptions = [
 ];
 
 export function TaskForm({ isOpen, onClose, taskId }: TaskFormProps) {
+  const { boardId } = useParams<{ boardId: string }>();
   const { addTask, updateTask, getTaskById } = useTaskStore();
   const { getColumnsByBoardId, addTaskToColumn, removeTaskFromColumn } = useColumnStore();
-  const { activeBoardId } = useBoardStore();
   const { openDeleteConfirm } = useUIStore();
 
   const existingTask = taskId ? getTaskById(taskId) : null;
   const isEditing = !!existingTask;
 
-  const columns = activeBoardId ? getColumnsByBoardId(activeBoardId) : [];
+  const columns = boardId ? getColumnsByBoardId(boardId) : [];
   const firstColumnId = columns[0]?.id ?? '';
 
   // ── react-hook-form setup ──────────────────────────────
@@ -103,7 +103,7 @@ export function TaskForm({ isOpen, onClose, taskId }: TaskFormProps) {
 
   // ── Submit handler — receives validated data from RHF ──
   const onSubmit = async (data: TaskFormValues) => {
-    if (!activeBoardId) return;
+    if (!boardId) return;
 
     if (isEditing && existingTask) {
       // Edit still uses Zustand (update API coming later)
@@ -131,7 +131,7 @@ export function TaskForm({ isOpen, onClose, taskId }: TaskFormProps) {
         dueDate: data.dueDate || null,
         labels: data.labels,
         columnId: data.columnId,
-        boardId: activeBoardId,
+        boardId: boardId,
       };
 
       try {

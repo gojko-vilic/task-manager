@@ -1,14 +1,16 @@
+import { useParams } from 'react-router-dom';
 import { useBoardStore } from '@/features/board';
 import { useUIStore } from '@/features/ui';
 import { useTaskStore } from '@/features/task';
 import { Input } from '@/components/ui';
 
 export function Header() {
-  const { activeBoardId, getBoardById } = useBoardStore();
+  const { boardId } = useParams<{ boardId: string }>();
+  const { getBoardById } = useBoardStore();
   const { toggleSidebar, sidebarOpen, openModal } = useUIStore();
   const { filters, setFilters } = useTaskStore();
 
-  const activeBoard = activeBoardId ? getBoardById(activeBoardId) : null;
+  const activeBoard = boardId ? getBoardById(boardId) : null;
 
   return (
     <header className="h-20 bg-white/80 backdrop-blur-sm border-b border-gray-200/50 flex items-center justify-between px-6 lg:px-8 shadow-sm">

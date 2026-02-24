@@ -8,20 +8,17 @@ import type { Board, CreateBoardInput } from '@/types';
 interface BoardStore {
   // State
   boards: Board[];
-  activeBoardId: string | null;
 
   // Actions
   addBoard: (input: CreateBoardInput) => Board;
   updateBoard: (id: string, updates: Partial<Board>) => void;
   deleteBoard: (id: string) => void;
-  setActiveBoard: (id: string | null) => void;
   addColumnToBoard: (boardId: string, columnId: string) => void;
   removeColumnFromBoard: (boardId: string, columnId: string) => void;
   reorderColumns: (boardId: string, columnIds: string[]) => void;
 
   // Getters
   getBoardById: (id: string) => Board | undefined;
-  getActiveBoard: () => Board | undefined;
   getBoardCount: () => number;
 }
 
@@ -30,9 +27,8 @@ export const useBoardStore = create(
     (set, get) => ({
       // Initial state
       boards: [],
-      activeBoardId: null,
 
-      // Add a new board and set it as active
+      // Add a new board
       addBoard: (input: CreateBoardInput): Board => {
         const newBoard: Board = {
           id: uuidv4(),
@@ -45,7 +41,6 @@ export const useBoardStore = create(
 
         set((state) => ({
           boards: [...state.boards, newBoard],
-          activeBoardId: newBoard.id,
         }));
 
         return newBoard;
@@ -60,17 +55,11 @@ export const useBoardStore = create(
         }));
       },
 
-      // Delete a board and clear active if it was selected
+      // Delete a board
       deleteBoard: (id: string): void => {
         set((state) => ({
           boards: state.boards.filter((board) => board.id !== id),
-          activeBoardId: state.activeBoardId === id ? null : state.activeBoardId,
         }));
-      },
-
-      // Set the currently active board
-      setActiveBoard: (id: string | null): void => {
-        set({ activeBoardId: id });
       },
 
       // Add a column reference to a board
@@ -119,12 +108,6 @@ export const useBoardStore = create(
         return get().boards.find((board) => board.id === id);
       },
 
-      // Get the currently active board
-      getActiveBoard: (): Board | undefined => {
-        const { boards, activeBoardId } = get();
-        return boards.find((board) => board.id === activeBoardId);
-      },
-
       // Get total number of boards
       getBoardCount: (): number => {
         return get().boards.length;
@@ -135,7 +118,6 @@ export const useBoardStore = create(
       storage: createJSONStorage(() => localStorage),
       partialize: ((state) => ({
         boards: state.boards,
-        activeBoardId: state.activeBoardId,
       })) as (state: BoardStore) => BoardStore,
     },
   ),

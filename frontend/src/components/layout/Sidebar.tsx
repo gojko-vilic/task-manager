@@ -1,10 +1,13 @@
+import { Link, useParams } from 'react-router-dom';
 import { useBoardStore } from '@/features/board';
 import { useUIStore } from '@/features/ui';
 import { Button } from '@/components/ui';
 import { cn } from '@/utils';
+import { boardPath } from '@/routes';
 
 export function Sidebar() {
-  const { boards, activeBoardId, setActiveBoard } = useBoardStore();
+  const { boards } = useBoardStore();
+  const { boardId: activeBoardId } = useParams<{ boardId: string }>();
   const { sidebarOpen, openModal } = useUIStore();
 
   const handleCreateBoard = () => {
@@ -49,9 +52,9 @@ export function Sidebar() {
 
           <nav className="space-y-1 px-2">
             {boards.map((board) => (
-              <button
+              <Link
                 key={board.id}
-                onClick={() => setActiveBoard(board.id)}
+                to={boardPath(board.id)}
                 className={cn(
                   'w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-left transition-colors',
                   activeBoardId === board.id
@@ -73,7 +76,7 @@ export function Sidebar() {
                   />
                 </svg>
                 <span className="truncate">{board.title}</span>
-              </button>
+              </Link>
             ))}
           </nav>
         </div>

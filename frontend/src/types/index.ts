@@ -30,7 +30,6 @@ export interface UIState {
   sidebarOpen: boolean;
   activeModal: ModalType | null;
   activeTaskId: string | null;
-  activeBoardId: string | null;
 }
 
 export type ModalType =
