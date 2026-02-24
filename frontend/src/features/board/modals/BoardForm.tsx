@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Modal, Button, Input, Textarea } from '@/components/ui';
 import { useBoardStore } from '@/features/board';
 import { useUIStore } from '@/features/ui';
 import { useColumnStore } from '@/features/column';
+import { boardPath } from '@/routes';
 
 interface BoardFormProps {
   isOpen: boolean;
@@ -11,6 +13,7 @@ interface BoardFormProps {
 }
 
 export function BoardForm({ isOpen, onClose, boardId }: BoardFormProps) {
+  const navigate = useNavigate();
   const { addBoard, updateBoard, getBoardById } = useBoardStore();
   const { openDeleteConfirm } = useUIStore();
 
@@ -53,6 +56,9 @@ export function BoardForm({ isOpen, onClose, boardId }: BoardFormProps) {
         const column = addColumn({ title: colTitle, boardId: newBoard.id });
         addColumnToBoard(newBoard.id, column.id);
       });
+
+      // Navigate to the new board
+      navigate(boardPath(newBoard.id));
     }
 
     onClose();
