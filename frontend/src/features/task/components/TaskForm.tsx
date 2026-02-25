@@ -1,14 +1,16 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useForm, useFieldArray } from 'react-hook-form';
+import { v4 as uuidv4 } from 'uuid';
+import to from 'await-to-js';
+
 import { Modal, Button, Input, Textarea, Select } from '@/components/ui';
 import { useTaskStore } from '@/features/task';
-import { taskRepo } from '../task.repo';
 import { useColumnStore } from '@/features/column';
 import { useUIStore } from '@/features/ui';
 import type { Priority, Label, CreateTask } from '../task.types';
 import { generateLabelColor } from '@/utils';
-import { v4 as uuidv4 } from 'uuid';
+import { useCreateTask } from '../useCreateTask';
 
 interface TaskFormProps {
   isOpen: boolean;
@@ -34,9 +36,10 @@ const priorityOptions = [
 
 export function TaskForm({ isOpen, onClose, taskId }: TaskFormProps) {
   const { boardId } = useParams<{ boardId: string }>();
-  const { addTask, updateTask, getTaskById } = useTaskStore();
+  const { updateTask, getTaskById } = useTaskStore();
   const { getColumnsByBoardId, addTaskToColumn, removeTaskFromColumn } = useColumnStore();
   const { openDeleteConfirm } = useUIStore();
+  const { mutateAsync: createTask } = useCreateTask();
 
   const existingTask = taskId ? getTaskById(taskId) : null;
   const isEditing = !!existingTask;
@@ -134,16 +137,14 @@ export function TaskForm({ isOpen, onClose, taskId }: TaskFormProps) {
         boardId: boardId,
       };
 
-      try {
-        const created = await taskRepo.createTask(payload);
-        // Also save to Zustand so the UI updates immediately
-        // (later React Query will handle this)
-        addTask(payload);
-        addTaskToColumn(data.columnId, created.id);
-      } catch (error) {
-        console.error('Failed to create task:', error);
+      const [err, created] = await to(createTask(payload));
+
+      if (err) {
         return; // Don't close the modal on error
       }
+
+      // Add the new task to its column
+      addTaskToColumn(data.columnId, created.id);
     }
 
     onClose();

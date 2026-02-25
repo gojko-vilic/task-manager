@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import {
   DndContext,
   DragOverlay,
@@ -22,30 +22,39 @@ import {
   sortableKeyboardCoordinates,
   arrayMove,
 } from '@dnd-kit/sortable';
+
+import { useQueryClient } from '@tanstack/react-query';
+
 import { useBoardStore } from '@/features/board';
 import { useColumnStore } from '@/features/column';
-import { useTaskStore } from '@/features/task';
+import { useGetTasks } from '@/features/task/useGetTasks';
+import { useUpdateTask } from '@/features/task/useUpdateTask';
+import { taskKey } from '@/features/task/task.query-keys';
 import { Column } from './Column';
 import { TaskCard } from './TaskCard';
 import { AddColumnButton } from './AddColumnButton';
 import { EmptyState } from '@/components/ui';
 import type { Column as ColumnType } from '@/types';
+import type { Task } from '@/features/task/task.types';
 
 interface BoardViewProps {
   boardId: string;
 }
 
 export function BoardView({ boardId }: BoardViewProps) {
+  console.log('BOARD ID', boardId);
   const board = useBoardStore((state) => state.boards.find((b) => b.id === boardId));
   const reorderColumns = useBoardStore((state) => state.reorderColumns);
 
   const allColumns = useColumnStore((state) => state.columns);
   const reorderTasks = useColumnStore((state) => state.reorderTasks);
-  const addTaskToColumn = useColumnStore((state) => state.addTaskToColumn);
-  const removeTaskFromColumn = useColumnStore((state) => state.removeTaskFromColumn);
 
-  const allTasks = useTaskStore((state) => state.tasks);
-  const updateTask = useTaskStore((state) => state.updateTask);
+  const { data: allTasks = [] } = useGetTasks(boardId);
+  const queryClient = useQueryClient();
+  const { mutate: updateTask } = useUpdateTask(boardId);
+
+  // Tracks cross-column moves during drag so handleDragEnd can persist to backend
+  const pendingMove = useRef<{ taskId: string; columnId: string } | null>(null);
 
   const [activeId, setActiveId] = useState<string | null>(null);
   const [activeType, setActiveType] = useState<'task' | 'column' | null>(null);
@@ -157,12 +166,16 @@ export function BoardView({ boardId }: BoardViewProps) {
 
       // Move task to different column
       if (targetColumnId && task.columnId !== targetColumnId) {
-        removeTaskFromColumn(task.columnId, taskId);
-        addTaskToColumn(targetColumnId, taskId);
-        updateTask(taskId, { columnId: targetColumnId });
+        // Optimistically update the task's columnId in the React Query cache
+        queryClient.setQueryData<Task[]>(taskKey.list({ boardId }), (old) =>
+          old?.map((t) => (t.id === taskId ? { ...t, columnId: targetColumnId } : t)),
+        );
+
+        // Track the final move — will be persisted to backend in handleDragEnd
+        pendingMove.current = { taskId, columnId: targetColumnId };
       }
     },
-    [allTasks, removeTaskFromColumn, addTaskToColumn, updateTask],
+    [allTasks, queryClient, boardId],
   );
 
   const handleDragEnd = useCallback(
@@ -194,19 +207,25 @@ export function BoardView({ boardId }: BoardViewProps) {
         const overTask = allTasks.find((t) => t.id === over.id);
 
         if (activeTask && overTask && activeTask.columnId === overTask.columnId) {
-          const column = allColumns.find((c) => c.id === activeTask.columnId);
-          if (column) {
-            const oldIndex = column.taskIds.indexOf(active.id as string);
-            const newIndex = column.taskIds.indexOf(over.id as string);
-            if (oldIndex !== -1 && newIndex !== -1 && oldIndex !== newIndex) {
-              const newTaskIds = arrayMove(column.taskIds, oldIndex, newIndex);
-              reorderTasks(column.id, newTaskIds);
-            }
+          const columnTasks = allTasks
+            .filter((t) => t.columnId === activeTask.columnId)
+            .map((t) => t.id);
+          const oldIndex = columnTasks.indexOf(active.id as string);
+          const newIndex = columnTasks.indexOf(over.id as string);
+          if (oldIndex !== -1 && newIndex !== -1 && oldIndex !== newIndex) {
+            reorderTasks(activeTask.columnId, arrayMove(columnTasks, oldIndex, newIndex));
           }
         }
       }
+
+      // Persist cross-column move to backend (once, on drop)
+      if (pendingMove.current) {
+        const { taskId, columnId } = pendingMove.current;
+        pendingMove.current = null;
+        updateTask({ id: taskId, updates: { columnId } });
+      }
     },
-    [boardId, columnIds, allTasks, allColumns, reorderColumns, reorderTasks],
+    [boardId, columnIds, allTasks, reorderColumns, reorderTasks, updateTask],
   );
 
   if (!board) {
@@ -228,9 +247,10 @@ export function BoardView({ boardId }: BoardViewProps) {
     >
       <div className="flex gap-2 h-full overflow-x-auto pb-6 px-2">
         <SortableContext items={columnIds} strategy={horizontalListSortingStrategy}>
-          {columns.map((column) => (
-            <Column key={column.id} column={column} />
-          ))}
+          {columns.map((column) => {
+            const columnTasks = allTasks.filter((t) => t.columnId === column.id);
+            return <Column key={column.id} column={column} tasks={columnTasks} />;
+          })}
         </SortableContext>
 
         <AddColumnButton boardId={boardId} />
@@ -249,16 +269,15 @@ export function BoardView({ boardId }: BoardViewProps) {
             </div>
             {/* Column Tasks */}
             <div className="flex-1 overflow-hidden px-3 py-3 space-y-2">
-              {activeColumn.taskIds
-                .map((id) => allTasks.find((t) => t.id === id))
-                .filter(Boolean)
+              {allTasks
+                .filter((t) => t.columnId === activeColumn.id)
                 .slice(0, 5)
                 .map((task) => (
-                  <TaskCard key={task!.id} task={task!} />
+                  <TaskCard key={task.id} task={task} />
                 ))}
               {activeColumn.taskIds.length > 5 && (
                 <p className="text-xs text-center text-gray-400 py-1">
-                  +{activeColumn.taskIds.length - 5} more
+                  +{allTasks.filter((t) => t.columnId === activeColumn.id).length - 5} more
                 </p>
               )}
             </div>
