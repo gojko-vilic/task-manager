@@ -68,3 +68,15 @@ export const readTasks = (): Task[] => {
 export const writeTasks = (tasks: Task[]): void => {
   fs.writeFileSync(TASKS_FILE, JSON.stringify(tasks, null, 2));
 };
+
+export const updateTask = (
+  id: string,
+  updates: Partial<Omit<Task, 'id' | 'createdAt'>>,
+): Task | null => {
+  const tasks = readTasks();
+  const index = tasks.findIndex((t) => t.id === id);
+  if (index === -1) return null;
+  tasks[index] = { ...tasks[index], ...updates, updatedAt: new Date().toISOString() };
+  writeTasks(tasks);
+  return tasks[index];
+};

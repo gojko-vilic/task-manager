@@ -1,24 +1,33 @@
 import type { IncomingMessage, ServerResponse } from 'http';
-import { createTask, readTasks, writeTasks } from './service.js';
+import { createTask, readTasks, writeTasks, updateTask } from './service.js';
+
+const setCorsHeaders = (res: ServerResponse): void => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+};
+
+const sendJson = (res: ServerResponse, statusCode: number, data: unknown): void => {
+  res.writeHead(statusCode, { 'Content-Type': 'application/json' });
+  res.end(JSON.stringify(data));
+};
 
 export const requestHandler = (req: IncomingMessage, res: ServerResponse): void => {
-  const { method, url } = req;
+  const { method } = req;
+  const parsedUrl = new URL(req.url ?? '', `http://${req.headers.host}`);
+  const pathname = parsedUrl.pathname;
 
-  // CORS + default content-type
-  res.writeHead(200, {
-    'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type',
-  });
+  // Set CORS headers on every response
+  setCorsHeaders(res);
 
   // Preflight
   if (method === 'OPTIONS') {
+    res.writeHead(204);
     res.end();
     return;
   }
 
-  if (method === 'POST' && url === '/api/tasks') {
+  if (method === 'POST' && pathname === '/api/tasks') {
     let body = '';
     req.on('data', (chunk: Buffer) => {
       body += chunk.toString();
@@ -32,27 +41,56 @@ export const requestHandler = (req: IncomingMessage, res: ServerResponse): void 
         tasks.push(newTask);
         writeTasks(tasks);
         console.log('Created task:', newTask);
+        setTimeout(() => {
+          sendJson(res, 201, newTask);
+        }, 5000); // Simulate delay
       } catch (err) {
         console.error('Error parsing JSON:', err);
-        res.statusCode = 400;
-        res.end('Invalid JSON\n');
-        return;
+        sendJson(res, 400, { error: 'Invalid JSON' });
       }
-      res.end('Data received\n');
     });
     return;
   }
 
-  if (method === 'GET' && url === '/api/tasks') {
-    const tasks = readTasks();
-    res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify(tasks));
+  if (method === 'GET' && pathname === '/api/tasks') {
+    let tasks = readTasks();
+
+    const boardId = parsedUrl.searchParams.get('boardId');
+    const columnId = parsedUrl.searchParams.get('columnId');
+
+    if (boardId) tasks = tasks.filter((t) => t.boardId === boardId);
+    if (columnId) tasks = tasks.filter((t) => t.columnId === columnId);
+
+    sendJson(res, 200, tasks);
     return;
   }
 
-  console.log('req', req.url);
-  console.log('method', req.method);
-  console.log('header', req.headers);
+  // PUT /api/tasks/:id — update a task
+  const taskIdMatch = pathname.match(/^\/api\/tasks\/([^/]+)$/);
 
-  res.end('Backend api for task manager!\n');
+  if (method === 'PUT' && taskIdMatch) {
+    const id = taskIdMatch[1];
+    let body = '';
+    req.on('data', (chunk: Buffer) => {
+      body += chunk.toString();
+    });
+    req.on('end', () => {
+      try {
+        const updates = JSON.parse(body);
+        const updated = updateTask(id, updates);
+        if (!updated) {
+          sendJson(res, 404, { error: `Task ${id} not found` });
+          return;
+        }
+        console.log('Updated task:', updated);
+        sendJson(res, 200, updated);
+      } catch (err) {
+        console.error('Error parsing JSON:', err);
+        sendJson(res, 400, { error: 'Invalid JSON' });
+      }
+    });
+    return;
+  }
+
+  sendJson(res, 404, { error: `Route ${method} ${pathname} not found` });
 };

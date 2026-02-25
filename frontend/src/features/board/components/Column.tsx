@@ -3,7 +3,7 @@ import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-
 import { CSS } from '@dnd-kit/utilities';
 import { useDroppable } from '@dnd-kit/core';
 import type { Column as ColumnType } from '@/types';
-import { useTaskStore } from '@/features/task';
+import { useTaskStore, type Task } from '@/features/task';
 import { useColumnStore } from '@/features/column';
 import { useUIStore } from '@/features/ui';
 import { TaskCard } from './TaskCard';
@@ -11,11 +11,11 @@ import { cn } from '@/utils';
 
 interface ColumnProps {
   column: ColumnType;
+  tasks: Task[]; // ← receive tasks as prop instead of reading from store
 }
 
-export function Column({ column }: ColumnProps) {
+export function Column({ column, tasks }: ColumnProps) {
   // Subscribe to tasks and filters to trigger re-renders
-  const tasks = useTaskStore((state) => state.tasks);
   const filters = useTaskStore((state) => state.filters);
   const { updateColumn } = useColumnStore();
   const { openDeleteConfirm } = useUIStore();
