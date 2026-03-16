@@ -41,12 +41,13 @@ export type ModalType =
 
 // Form types — task-related form types re-exported above from task.types.ts
 
-export interface CreateBoardInput {
+export interface CreateBoardPayload {
   title: string;
   description: string;
+  columnIds?: string[];
 }
 
-export interface CreateColumnInput {
+export interface CreateColumnPaylaod {
   title: string;
   boardId: string;
 }

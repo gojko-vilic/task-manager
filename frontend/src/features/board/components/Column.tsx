@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { useDroppable } from '@dnd-kit/core';
-import type { Column as ColumnType } from '@/types';
+import type { Column as ColumnType } from '@/features/board/types';
 import { useTaskStore, type Task } from '@/features/task';
 import { useColumnStore } from '@/features/column';
 import { useUIStore } from '@/features/ui';
