@@ -1,0 +1,7 @@
+{
+  "id": "col-1",
+  "title": "To Do",
+  "boardId": "board-1",
+  "taskIds": ["task-1", "task-3"],
+  "order": 0
+}

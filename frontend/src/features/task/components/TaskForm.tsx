@@ -5,9 +5,10 @@ import { v4 as uuidv4 } from 'uuid';
 import to from 'await-to-js';
 
 import { Modal, Button, Input, Textarea, Select } from '@/components/ui';
-import { useTaskStore } from '@/features/task';
 import { useColumnStore } from '@/features/column';
 import { useUIStore } from '@/features/ui';
+import { useUpdateTask } from '../useUpdateTask';
+import { useGetTask } from '../useGetTask';
 import type { Priority, Label, CreateTask } from '../task.types';
 import { generateLabelColor } from '@/utils';
 import { useCreateTask } from '../useCreateTask';
@@ -15,7 +16,7 @@ import { useCreateTask } from '../useCreateTask';
 interface TaskFormProps {
   isOpen: boolean;
   onClose: () => void;
-  taskId?: string | null;
+  taskId: string | null;
 }
 
 /** Shape of the form fields managed by react-hook-form */
@@ -35,14 +36,14 @@ const priorityOptions = [
 ];
 
 export function TaskForm({ isOpen, onClose, taskId }: TaskFormProps) {
+  const isEditing = !!taskId;
+
   const { boardId } = useParams<{ boardId: string }>();
-  const { updateTask, getTaskById } = useTaskStore();
+  const { data: existingTask } = useGetTask(taskId);
+  const { mutate: updateTask } = useUpdateTask(boardId || '');
   const { getColumnsByBoardId, addTaskToColumn, removeTaskFromColumn } = useColumnStore();
   const { openDeleteConfirm } = useUIStore();
   const { mutateAsync: createTask } = useCreateTask();
-
-  const existingTask = taskId ? getTaskById(taskId) : null;
-  const isEditing = !!existingTask;
 
   const columns = boardId ? getColumnsByBoardId(boardId) : [];
   const firstColumnId = columns[0]?.id ?? '';
@@ -112,13 +113,16 @@ export function TaskForm({ isOpen, onClose, taskId }: TaskFormProps) {
       // Edit still uses Zustand (update API coming later)
       const columnChanged = existingTask.columnId !== data.columnId;
 
-      updateTask(existingTask.id, {
-        title: data.title.trim(),
-        description: data.description.trim(),
-        priority: data.priority,
-        dueDate: data.dueDate || null,
-        labels: data.labels,
-        columnId: data.columnId,
+      updateTask({
+        id: existingTask.id,
+        updates: {
+          title: data.title.trim(),
+          description: data.description.trim(),
+          priority: data.priority,
+          dueDate: data.dueDate || null,
+          labels: data.labels,
+          columnId: data.columnId,
+        },
       });
 
       if (columnChanged) {

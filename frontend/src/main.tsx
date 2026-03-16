@@ -1,23 +1,16 @@
-import { StrictMode, lazy, Suspense } from 'react';
+import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { RouterProvider } from 'react-router-dom';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { QueryProvider } from '@/lib';
 import { router } from './router';
 import './index.css';
-
-const ReactQueryDevtools = lazy(() =>
-  import('@tanstack/react-query-devtools').then((mod) => ({
-    default: mod.ReactQueryDevtools,
-  }))
-);
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryProvider>
       <RouterProvider router={router} />
-      <Suspense fallback={null}>
-        <ReactQueryDevtools initialIsOpen={false} />
-      </Suspense>
+      <ReactQueryDevtools initialIsOpen={false} />
     </QueryProvider>
   </StrictMode>,
 );

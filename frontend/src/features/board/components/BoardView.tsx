@@ -42,7 +42,6 @@ interface BoardViewProps {
 }
 
 export function BoardView({ boardId }: BoardViewProps) {
-  console.log('BOARD ID', boardId);
   const board = useBoardStore((state) => state.boards.find((b) => b.id === boardId));
   const reorderColumns = useBoardStore((state) => state.reorderColumns);
 

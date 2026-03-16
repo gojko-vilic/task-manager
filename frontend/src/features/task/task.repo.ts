@@ -9,6 +9,9 @@ export const taskRepo = {
   getTasks: (boardId?: string, columnId?: string): Promise<Task[]> =>
     http.get('/tasks', { params: { boardId, columnId } }),
 
+  /** GET /api/tasks/:id — get a single task by ID */
+  getTaskById: (id: string): Promise<Task> => http.get(`/tasks/${id}`),
+
   /** PUT /api/tasks/:id — update a task by ID */
   updateTask: (id: string, updates: Partial<CreateTask>): Promise<Task> =>
     http.put(`/tasks/${id}`, updates),

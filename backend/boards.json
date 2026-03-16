@@ -1,0 +1,9 @@
+[
+  {
+    "id": "board-1",
+    "title": "My Project",
+    "columnIds": ["col-1", "col-2"],
+    "createdAt": "...",
+    "updatedAt": "..."
+  }
+]
