@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { ModalType } from '@/types';
+import type { ModalType } from '@/features/board/types';
 
 interface DeleteConfirmData {
   type: 'task' | 'board' | 'column';

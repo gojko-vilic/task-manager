@@ -3,14 +3,14 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import { v4 as uuidv4 } from 'uuid';
 
 import { STORAGE_KEYS } from '@/utils';
-import type { Column, CreateColumnInput } from '@/types';
+import type { Column, CreateColumnPaylaod } from '@/features/board/types';
 
 interface ColumnStore {
   // State
   columns: Column[];
 
   // Actions
-  addColumn: (input: CreateColumnInput) => Column;
+  addColumn: (input: CreateColumnPaylaod) => Column;
   updateColumn: (id: string, updates: Partial<Column>) => void;
   deleteColumn: (id: string) => void;
   addTaskToColumn: (columnId: string, taskId: string) => void;
@@ -31,7 +31,7 @@ export const useColumnStore = create(
       columns: [],
 
       // Add a new column to a board
-      addColumn: (input: CreateColumnInput): Column => {
+      addColumn: (input: CreateColumnPaylaod): Column => {
         const existingColumns = get().columns.filter((col) => col.boardId === input.boardId);
 
         const newColumn: Column = {
