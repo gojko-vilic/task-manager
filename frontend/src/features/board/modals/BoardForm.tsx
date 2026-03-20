@@ -1,10 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import to from 'await-to-js';
+
 import { Modal, Button, Input, Textarea } from '@/components/ui';
 import { useBoardStore } from '@/features/board';
 import { useUIStore } from '@/features/ui';
 import { useColumnStore } from '@/features/column';
 import { boardPath } from '@/routes';
+
+import { useCreateBoard } from '../useCreateBoard';
 
 interface BoardFormProps {
   isOpen: boolean;
@@ -14,7 +18,8 @@ interface BoardFormProps {
 
 export function BoardForm({ isOpen, onClose, boardId }: BoardFormProps) {
   const navigate = useNavigate();
-  const { addBoard, updateBoard, getBoardById } = useBoardStore();
+  const { mutateAsync: createBoard } = useCreateBoard();
+  const { updateBoard, getBoardById } = useBoardStore();
   const { openDeleteConfirm } = useUIStore();
 
   const existingBoard = boardId ? getBoardById(boardId) : null;
@@ -31,7 +36,7 @@ export function BoardForm({ isOpen, onClose, boardId }: BoardFormProps) {
     }
   }, [isOpen, existingBoard]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!title.trim()) return;
@@ -42,10 +47,13 @@ export function BoardForm({ isOpen, onClose, boardId }: BoardFormProps) {
         description: description.trim(),
       });
     } else {
-      const newBoard = addBoard({
-        title: title.trim(),
-        description: description.trim(),
-      });
+      const [err, newBoard] = await to(
+        createBoard({
+          title: title.trim(),
+          description: description.trim(),
+        }),
+      );
+      if (err) return;
 
       // Create default columns for new board
       const { addColumn } = useColumnStore.getState();

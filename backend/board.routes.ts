@@ -2,6 +2,7 @@ import { IncomingMessage, ServerResponse } from 'http';
 
 import { sendJson } from './utils.js';
 import { createBoard, readAllBoards, writeBoards } from './board.service.js';
+import type { CreateBoardInput } from './board.service.js';
 
 export const boardRequestHandler = (req: IncomingMessage, res: ServerResponse): void => {
   const { method } = req;
@@ -16,7 +17,7 @@ export const boardRequestHandler = (req: IncomingMessage, res: ServerResponse): 
     req.on('end', () => {
       console.log('Received data:', body);
       try {
-        const input = JSON.parse(body);
+        const input: CreateBoardInput = JSON.parse(body);
         const newBoard = createBoard(input);
         const boards = readAllBoards();
         boards.push(newBoard);

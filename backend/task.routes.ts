@@ -1,6 +1,7 @@
 import type { IncomingMessage, ServerResponse } from 'http';
 
 import { createTask, readTasks, writeTasks, updateTask } from './task.service.js';
+import type { CreateTaskInput } from './task.service.js';
 import { sendJson } from './utils.js';
 
 export const taskRequestHandler = (req: IncomingMessage, res: ServerResponse): void => {
@@ -16,7 +17,7 @@ export const taskRequestHandler = (req: IncomingMessage, res: ServerResponse): v
     req.on('end', () => {
       console.log('Received data:', body);
       try {
-        const input = JSON.parse(body);
+        const input: CreateTaskInput = JSON.parse(body);
         const newTask = createTask(input);
         const tasks = readTasks();
         tasks.push(newTask);

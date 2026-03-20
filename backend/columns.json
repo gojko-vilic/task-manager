@@ -1,7 +1,26 @@
-{
-  "id": "col-1",
-  "title": "To Do",
-  "boardId": "board-1",
-  "taskIds": ["task-1", "task-3"],
-  "order": 0
-}
+[
+  {
+    "id": "96207154-f0b4-4023-90b4-6c31cf4959cf",
+    "boardId": "393f9474-44f4-41fb-817f-257937c06bb8",
+    "title": "To Do",
+    "taskIds": [],
+    "createdAt": "2026-03-19T14:48:25.808Z",
+    "updatedAt": "2026-03-19T14:48:25.808Z"
+  },
+  {
+    "id": "05347e68-2fde-4290-aa1f-5ebaa126e071",
+    "boardId": "393f9474-44f4-41fb-817f-257937c06bb8",
+    "title": "In Progress",
+    "taskIds": [],
+    "createdAt": "2026-03-19T14:48:25.808Z",
+    "updatedAt": "2026-03-19T14:48:25.808Z"
+  },
+  {
+    "id": "3715aece-2c86-4fa4-9784-acf686d92abe",
+    "boardId": "393f9474-44f4-41fb-817f-257937c06bb8",
+    "title": "Done",
+    "taskIds": [],
+    "createdAt": "2026-03-19T14:48:25.808Z",
+    "updatedAt": "2026-03-19T14:48:25.808Z"
+  }
+]
