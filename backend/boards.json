@@ -2,9 +2,46 @@
   {
     "id": "board-1",
     "title": "My Project",
-    "columnIds": ["col-1", "col-2"],
+    "columnIds": [
+      "col-1",
+      "col-2"
+    ],
     "createdAt": "...",
     "updatedAt": "...",
     "description": "This is my project board."
+  },
+  {
+    "id": "684b16fa-db2f-4be0-baaa-d726a6fa11e7",
+    "title": {
+      "title": "new api hook",
+      "description": "new api hook"
+    },
+    "columnIds": [],
+    "createdAt": "2026-03-19T13:36:29.784Z",
+    "updatedAt": "2026-03-19T13:36:29.784Z"
+  },
+  {
+    "id": "645d3e51-e462-4f73-b668-787dbb512fdf",
+    "title": {
+      "title": "api test board create",
+      "description": "api test board create"
+    },
+    "columnIds": [],
+    "createdAt": "2026-03-19T13:56:15.545Z",
+    "updatedAt": "2026-03-19T13:56:15.545Z"
+  },
+  {
+    "id": "393f9474-44f4-41fb-817f-257937c06bb8",
+    "title": {
+      "title": "test backend logic",
+      "description": "test backend logic for creating board"
+    },
+    "columnIds": [
+      "96207154-f0b4-4023-90b4-6c31cf4959cf",
+      "05347e68-2fde-4290-aa1f-5ebaa126e071",
+      "3715aece-2c86-4fa4-9784-acf686d92abe"
+    ],
+    "createdAt": "2026-03-19T14:48:25.815Z",
+    "updatedAt": "2026-03-19T14:48:25.815Z"
   }
 ]

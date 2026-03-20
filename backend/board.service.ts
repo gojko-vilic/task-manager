@@ -3,6 +3,8 @@ import crypto from 'crypto';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
+import columnService from './column.service.js';
+
 // ---------------------------------------------------------------------------
 // File path for persisted tasks
 // ---------------------------------------------------------------------------
@@ -18,7 +20,7 @@ interface Board {
   description?: string;
 }
 
-interface CreateBoardInput {
+export interface CreateBoardInput {
   id: string;
   title: string;
   columnIds?: string[];
@@ -34,10 +36,15 @@ export const readAllBoards = (): Board[] => {
 };
 
 export const createBoard = (input: CreateBoardInput): Board => {
+  const boardId = crypto.randomUUID();
+  const defaultColumns = ['To Do', 'In Progress', 'Done'];
+
+  const columns = columnService.createColumns(boardId, defaultColumns);
+
   return {
-    id: crypto.randomUUID(),
+    id: boardId,
     title: input.title,
-    columnIds: input.columnIds ?? [],
+    columnIds: columns.map((c) => c.id),
     description: input.description,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),

@@ -5,7 +5,7 @@ import { boardRepo } from './board.repo';
 
 export const useCreateBoard = () => {
   return useMutation({
-    mutationFn: (board: CreateBoardPayload) => boardRepo.createBoard(board),
+    mutationFn: (boardPayload: CreateBoardPayload) => boardRepo.createBoard(boardPayload),
     onSuccess: (data) => {
       // Here you could show a toast notification or update local state
       console.log('Board created successfully:', data);
