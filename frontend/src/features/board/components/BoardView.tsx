@@ -34,14 +34,18 @@ import { Column } from './Column';
 import { TaskCard } from './TaskCard';
 import { AddColumnButton } from './AddColumnButton';
 import { EmptyState } from '@/components/ui';
-import type { Board, Column as ColumnType } from '@/features/board/types';
+import type { Board } from '@/features/board/types';
 import type { Task } from '@/features/task/task.types';
 
 export function BoardView({ board, boardId }: { board: Board; boardId: string }) {
   const reorderColumns = useBoardStore((state) => state.reorderColumns);
 
-  const allColumns = useColumnStore((state) => state.columns);
+  // Get columns for this board
+  const columns = board.columns;
+  const columnIds = board.columnIds;
   const reorderTasks = useColumnStore((state) => state.reorderTasks);
+
+  console.log('board', board);
 
   const { data: allTasks = [] } = useGetTasks(boardId);
   const queryClient = useQueryClient();
@@ -52,16 +56,6 @@ export function BoardView({ board, boardId }: { board: Board; boardId: string })
 
   const [activeId, setActiveId] = useState<string | null>(null);
   const [activeType, setActiveType] = useState<'task' | 'column' | null>(null);
-
-  // Get columns for this board
-  const columns = useMemo(() => {
-    if (!board) return [];
-    return board.columnIds
-      .map((id) => allColumns.find((c) => c.id === id))
-      .filter((c): c is ColumnType => c !== undefined);
-  }, [board, allColumns]);
-
-  const columnIds = useMemo(() => columns.map((c) => c.id), [columns]);
 
   // Get active item for drag overlay
   const activeTask = useMemo(() => {

@@ -24,7 +24,6 @@ const readColumnsByBoardId = (boardId: string): Column[] => {
   if (!fs.existsSync(COLUMNS_FILE)) return [];
   const raw = fs.readFileSync(COLUMNS_FILE, 'utf-8');
   const columns = JSON.parse(raw) as Column[];
-  console.log('COLUMNS', columns);
   return columns.filter((c) => c.boardId === boardId);
 };
 
