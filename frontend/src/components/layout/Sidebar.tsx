@@ -1,12 +1,12 @@
 import { Link, useParams } from 'react-router-dom';
-import { useBoardStore } from '@/features/board';
 import { useUIStore } from '@/features/ui';
 import { Button } from '@/components/ui';
 import { cn } from '@/utils';
 import { boardPath } from '@/routes';
+import { useGetAllBoards } from '@/features/board';
 
 export function Sidebar() {
-  const { boards } = useBoardStore();
+  const { data: boards } = useGetAllBoards();
   const { boardId: activeBoardId } = useParams<{ boardId: string }>();
   const { sidebarOpen, openModal } = useUIStore();
 
@@ -46,12 +46,12 @@ export function Sidebar() {
         <div className="flex-1 overflow-y-auto py-4">
           <div className="px-4 mb-2 flex items-center justify-between">
             <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
-              All Boards ({boards.length})
+              All Boards ({boards?.length})
             </span>
           </div>
 
           <nav className="space-y-1 px-2">
-            {boards.map((board) => (
+            {boards?.map((board) => (
               <Link
                 key={board.id}
                 to={boardPath(board.id)}

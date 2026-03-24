@@ -1,15 +1,21 @@
 import { useParams } from 'react-router-dom';
-import { useBoardStore, BoardView } from '@/features/board';
+
+import { BoardView } from '@/features/board';
 import { TaskForm } from '@/features/task';
 import { useUIStore } from '@/features/ui';
 import { DeleteConfirmModal } from '@/components/modals';
 import { BoardForm } from '@/features/board';
-import { EmptyState } from '@/components/ui';
+import { EmptyState, LoadingSpinner } from '@/components/ui';
+import { useGetBoardById } from '../useGetBoardById';
 
 export function BoardPage() {
   const { boardId } = useParams<{ boardId: string }>();
-  const board = useBoardStore((state) => state.boards.find((b) => b.id === boardId));
+  const { data: board, isLoading: isBoardLoading } = useGetBoardById(boardId!);
   const { activeModal, activeTaskId, editingBoardId, closeModal } = useUIStore();
+
+  if (isBoardLoading) {
+    return <LoadingSpinner />;
+  }
 
   if (!boardId || !board) {
     return (
@@ -34,7 +40,7 @@ export function BoardPage() {
 
   return (
     <>
-      <BoardView boardId={boardId} />
+      <BoardView board={board} boardId={boardId} />
 
       {/* Task Modal */}
       <TaskForm

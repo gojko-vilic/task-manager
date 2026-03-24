@@ -34,15 +34,10 @@ import { Column } from './Column';
 import { TaskCard } from './TaskCard';
 import { AddColumnButton } from './AddColumnButton';
 import { EmptyState } from '@/components/ui';
-import type { Column as ColumnType } from '@/features/board/types';
+import type { Board, Column as ColumnType } from '@/features/board/types';
 import type { Task } from '@/features/task/task.types';
 
-interface BoardViewProps {
-  boardId: string;
-}
-
-export function BoardView({ boardId }: BoardViewProps) {
-  const board = useBoardStore((state) => state.boards.find((b) => b.id === boardId));
+export function BoardView({ board, boardId }: { board: Board; boardId: string }) {
   const reorderColumns = useBoardStore((state) => state.reorderColumns);
 
   const allColumns = useColumnStore((state) => state.columns);

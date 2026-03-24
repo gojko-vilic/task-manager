@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import to from 'await-to-js';
+import { useQueryClient } from '@tanstack/react-query';
 
 import { Modal, Button, Input, Textarea } from '@/components/ui';
-import { useBoardStore } from '@/features/board';
+import { boardKey, useBoardStore } from '@/features/board';
 import { useUIStore } from '@/features/ui';
-import { useColumnStore } from '@/features/column';
 import { boardPath } from '@/routes';
 
 import { useCreateBoard } from '../useCreateBoard';
@@ -18,6 +18,8 @@ interface BoardFormProps {
 
 export function BoardForm({ isOpen, onClose, boardId }: BoardFormProps) {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
   const { mutateAsync: createBoard } = useCreateBoard();
   const { updateBoard, getBoardById } = useBoardStore();
   const { openDeleteConfirm } = useUIStore();
@@ -54,15 +56,10 @@ export function BoardForm({ isOpen, onClose, boardId }: BoardFormProps) {
         }),
       );
       if (err) return;
-
-      // Create default columns for new board
-      const { addColumn } = useColumnStore.getState();
-      const { addColumnToBoard } = useBoardStore.getState();
-
-      const defaultColumns = ['To Do', 'In Progress', 'Done'];
-      defaultColumns.forEach((colTitle) => {
-        const column = addColumn({ title: colTitle, boardId: newBoard.id });
-        addColumnToBoard(newBoard.id, column.id);
+      // refetch queries to get new board in list
+      // maybe we can optimize this later by just adding the new board to the cache instead of refetching everything
+      queryClient.invalidateQueries({
+        queryKey: boardKey.all,
       });
 
       // Navigate to the new board

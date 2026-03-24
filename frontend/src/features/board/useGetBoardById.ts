@@ -3,9 +3,9 @@ import { useQuery } from '@tanstack/react-query';
 import { boardKey } from './board.query-keys';
 import { boardRepo } from './board.repo';
 
-export const useGetAllBoards = () => {
+export const useGetBoardById = (id: string) => {
   return useQuery({
-    queryKey: boardKey.all,
-    queryFn: () => boardRepo.getAllBoards(),
+    queryKey: boardKey.detail(id),
+    queryFn: () => boardRepo.getBoardById(id),
   });
 };

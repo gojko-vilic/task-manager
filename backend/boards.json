@@ -1,47 +1,26 @@
 [
   {
-    "id": "board-1",
-    "title": "My Project",
+    "id": "9b891c9a-7b53-4cb7-988e-07638d1cf759",
+    "title": "now should work",
     "columnIds": [
-      "col-1",
-      "col-2"
+      "abe9c1e1-33a1-4a3b-9c18-74da002ef1c2",
+      "7939c374-f3cd-4e82-a313-b5803254fee4",
+      "d6c3f6a3-2816-4e1e-aa1d-484c1dddf931"
     ],
-    "createdAt": "...",
-    "updatedAt": "...",
-    "description": "This is my project board."
+    "description": "now should work",
+    "createdAt": "2026-03-20T11:02:47.185Z",
+    "updatedAt": "2026-03-20T11:02:47.185Z"
   },
   {
-    "id": "684b16fa-db2f-4be0-baaa-d726a6fa11e7",
-    "title": {
-      "title": "new api hook",
-      "description": "new api hook"
-    },
-    "columnIds": [],
-    "createdAt": "2026-03-19T13:36:29.784Z",
-    "updatedAt": "2026-03-19T13:36:29.784Z"
-  },
-  {
-    "id": "645d3e51-e462-4f73-b668-787dbb512fdf",
-    "title": {
-      "title": "api test board create",
-      "description": "api test board create"
-    },
-    "columnIds": [],
-    "createdAt": "2026-03-19T13:56:15.545Z",
-    "updatedAt": "2026-03-19T13:56:15.545Z"
-  },
-  {
-    "id": "393f9474-44f4-41fb-817f-257937c06bb8",
-    "title": {
-      "title": "test backend logic",
-      "description": "test backend logic for creating board"
-    },
+    "id": "eebca00b-b8f1-47d5-b8b3-4d4e9f8b877f",
+    "title": "test refetch board",
     "columnIds": [
-      "96207154-f0b4-4023-90b4-6c31cf4959cf",
-      "05347e68-2fde-4290-aa1f-5ebaa126e071",
-      "3715aece-2c86-4fa4-9784-acf686d92abe"
+      "ef614e9c-113c-4cbc-81fc-e3ec16975fee",
+      "e3f0e51e-5cd3-4d98-a3ed-f9e803af979b",
+      "dbbae8df-b7f3-450c-9d99-47405d5b7ca2"
     ],
-    "createdAt": "2026-03-19T14:48:25.815Z",
-    "updatedAt": "2026-03-19T14:48:25.815Z"
+    "description": "test refetch board",
+    "createdAt": "2026-03-20T12:08:49.035Z",
+    "updatedAt": "2026-03-20T12:08:49.035Z"
   }
 ]

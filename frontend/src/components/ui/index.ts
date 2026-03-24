@@ -5,3 +5,4 @@ export { Select } from './Select';
 export { Modal } from './Modal';
 export { ConfirmDialog } from './ConfirmDialog';
 export { EmptyState } from './EmptyState';
+export { LoadingSpinner } from './LoadingSpinner';

@@ -1,16 +1,15 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import { v4 as uuidv4 } from 'uuid';
 
 import { STORAGE_KEYS } from '@/utils';
-import type { Column, CreateColumnPaylaod } from '@/features/board/types';
+import type { Column } from '@/features/board/types';
 
 interface ColumnStore {
   // State
   columns: Column[];
 
   // Actions
-  addColumn: (input: CreateColumnPaylaod) => Column;
+
   updateColumn: (id: string, updates: Partial<Column>) => void;
   deleteColumn: (id: string) => void;
   addTaskToColumn: (columnId: string, taskId: string) => void;
@@ -29,25 +28,6 @@ export const useColumnStore = create(
     (set, get) => ({
       // Initial state
       columns: [],
-
-      // Add a new column to a board
-      addColumn: (input: CreateColumnPaylaod): Column => {
-        const existingColumns = get().columns.filter((col) => col.boardId === input.boardId);
-
-        const newColumn: Column = {
-          id: uuidv4(),
-          title: input.title,
-          taskIds: [],
-          boardId: input.boardId,
-          order: existingColumns.length,
-        };
-
-        set((state) => ({
-          columns: [...state.columns, newColumn],
-        }));
-
-        return newColumn;
-      },
 
       // Update a column's properties
       updateColumn: (id: string, updates: Partial<Column>): void => {
