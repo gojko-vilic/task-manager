@@ -3,6 +3,7 @@ import { IncomingMessage, ServerResponse } from 'http';
 import { sendJson } from './utils.js';
 import { createBoard, readAllBoards, writeBoards } from './board.service.js';
 import type { CreateBoardInput } from './board.service.js';
+import columnService from './column.service.js';
 
 export const boardRequestHandler = (req: IncomingMessage, res: ServerResponse): void => {
   const { method } = req;
@@ -45,9 +46,8 @@ export const boardRequestHandler = (req: IncomingMessage, res: ServerResponse): 
       const boards = readAllBoards();
       const board = boards.find((b) => b.id === id);
       if (board) {
-        setTimeout(() => {
-          sendJson(res, 200, board);
-        }, 5000); // Simulate network delay
+        const columns = columnService.readColumnsByBoardId(board.id);
+        sendJson(res, 200, { ...board, columns });
       } else {
         sendJson(res, 404, { error: 'Board not found' });
       }

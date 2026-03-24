@@ -1,16 +1,14 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import { v4 as uuidv4 } from 'uuid';
 
 import { STORAGE_KEYS } from '@/utils';
-import type { Board, CreateBoardPayload } from './types';
+import type { Board } from './types';
 
 interface BoardStore {
   // State
   boards: Board[];
 
   // Actions
-  addBoard: (input: CreateBoardPayload) => Board;
   updateBoard: (id: string, updates: Partial<Board>) => void;
   deleteBoard: (id: string) => void;
   addColumnToBoard: (boardId: string, columnId: string) => void;
@@ -27,24 +25,6 @@ export const useBoardStore = create(
     (set, get) => ({
       // Initial state
       boards: [],
-
-      // Add a new board
-      addBoard: (input: CreateBoardPayload): Board => {
-        const newBoard: Board = {
-          id: uuidv4(),
-          title: input.title,
-          description: input.description,
-          columnIds: [],
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        };
-
-        set((state) => ({
-          boards: [...state.boards, newBoard],
-        }));
-
-        return newBoard;
-      },
 
       // Update an existing board's properties
       updateBoard: (id: string, updates: Partial<Board>): void => {

@@ -3,6 +3,7 @@ export interface Column {
   id: string;
   title: string;
   taskIds: string[];
+  updatedAt: string;
   boardId: string;
   order: number;
 }
@@ -15,6 +16,7 @@ export interface Board {
   columnIds: string[];
   createdAt: string;
   updatedAt: string;
+  columns: Column[]; // Optional, can be populated when fetching a single board
 }
 
 // User (for future auth)
