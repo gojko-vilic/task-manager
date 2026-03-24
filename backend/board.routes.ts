@@ -38,5 +38,22 @@ export const boardRequestHandler = (req: IncomingMessage, res: ServerResponse): 
     return;
   }
 
+  if (method === 'GET') {
+    const boardIdMatch = pathname.match(/^\/api\/boards\/([^/]+)$/);
+    if (boardIdMatch) {
+      const id = boardIdMatch[1];
+      const boards = readAllBoards();
+      const board = boards.find((b) => b.id === id);
+      if (board) {
+        setTimeout(() => {
+          sendJson(res, 200, board);
+        }, 5000); // Simulate network delay
+      } else {
+        sendJson(res, 404, { error: 'Board not found' });
+      }
+      return;
+    }
+  }
+
   sendJson(res, 404, { error: `Route ${method} ${pathname} not found` });
 };

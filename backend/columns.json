@@ -1,26 +1,26 @@
 [
   {
-    "id": "96207154-f0b4-4023-90b4-6c31cf4959cf",
-    "boardId": "393f9474-44f4-41fb-817f-257937c06bb8",
+    "id": "ef614e9c-113c-4cbc-81fc-e3ec16975fee",
+    "boardId": "eebca00b-b8f1-47d5-b8b3-4d4e9f8b877f",
     "title": "To Do",
     "taskIds": [],
-    "createdAt": "2026-03-19T14:48:25.808Z",
-    "updatedAt": "2026-03-19T14:48:25.808Z"
+    "createdAt": "2026-03-20T12:08:49.034Z",
+    "updatedAt": "2026-03-20T12:08:49.034Z"
   },
   {
-    "id": "05347e68-2fde-4290-aa1f-5ebaa126e071",
-    "boardId": "393f9474-44f4-41fb-817f-257937c06bb8",
+    "id": "e3f0e51e-5cd3-4d98-a3ed-f9e803af979b",
+    "boardId": "eebca00b-b8f1-47d5-b8b3-4d4e9f8b877f",
     "title": "In Progress",
     "taskIds": [],
-    "createdAt": "2026-03-19T14:48:25.808Z",
-    "updatedAt": "2026-03-19T14:48:25.808Z"
+    "createdAt": "2026-03-20T12:08:49.034Z",
+    "updatedAt": "2026-03-20T12:08:49.034Z"
   },
   {
-    "id": "3715aece-2c86-4fa4-9784-acf686d92abe",
-    "boardId": "393f9474-44f4-41fb-817f-257937c06bb8",
+    "id": "dbbae8df-b7f3-450c-9d99-47405d5b7ca2",
+    "boardId": "eebca00b-b8f1-47d5-b8b3-4d4e9f8b877f",
     "title": "Done",
     "taskIds": [],
-    "createdAt": "2026-03-19T14:48:25.808Z",
-    "updatedAt": "2026-03-19T14:48:25.808Z"
+    "createdAt": "2026-03-20T12:08:49.034Z",
+    "updatedAt": "2026-03-20T12:08:49.034Z"
   }
 ]

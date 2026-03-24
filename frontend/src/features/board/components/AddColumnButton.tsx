@@ -1,7 +1,5 @@
 import { useState } from 'react';
 import { Button, Input } from '@/components/ui';
-import { useColumnStore } from '@/features/column';
-import { useBoardStore } from '@/features/board';
 
 interface AddColumnButtonProps {
   boardId: string;
@@ -10,14 +8,13 @@ interface AddColumnButtonProps {
 export function AddColumnButton({ boardId }: AddColumnButtonProps) {
   const [isAdding, setIsAdding] = useState(false);
   const [title, setTitle] = useState('');
-  const { addColumn } = useColumnStore();
-  const { addColumnToBoard } = useBoardStore();
+  console.log('BOARD_ID', boardId);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (title.trim()) {
-      const newColumn = addColumn({ title: title.trim(), boardId });
-      addColumnToBoard(boardId, newColumn.id);
+      // const newColumn = addColumn({ title: title.trim(), boardId });
+      // addColumnToBoard(boardId, newColumn.id);
       setTitle('');
       setIsAdding(false);
     }
