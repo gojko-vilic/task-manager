@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import type { ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { cn } from '@/utils';
+import { Skeleton } from './Skeleton';
 
 interface ModalProps {
   isOpen: boolean;
@@ -9,6 +10,8 @@ interface ModalProps {
   title?: string;
   children: ReactNode;
   size?: 'sm' | 'md' | 'lg' | 'xl';
+  loading?: boolean;
+  loadingSkeleton?: ReactNode;
 }
 
 const sizeStyles = {
@@ -18,7 +21,29 @@ const sizeStyles = {
   xl: 'max-w-xl',
 };
 
-export function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalProps) {
+const DefaultSkeleton = () => (
+  <div className="space-y-4">
+    <Skeleton className="h-5 w-24" />
+    <Skeleton className="h-10 w-full" />
+    <Skeleton className="h-5 w-32" />
+    <Skeleton className="h-24 w-full" />
+    <div className="grid grid-cols-2 gap-4">
+      <Skeleton className="h-10" />
+      <Skeleton className="h-10" />
+    </div>
+    <Skeleton className="h-10 w-full" />
+  </div>
+);
+
+export function Modal({
+  isOpen,
+  onClose,
+  title,
+  children,
+  size = 'md',
+  loading = false,
+  loadingSkeleton,
+}: ModalProps) {
   const overlayRef = useRef<HTMLDivElement>(null);
 
   // Handle escape key
@@ -86,7 +111,7 @@ export function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalPr
             </button>
           </div>
         )}
-        <div className="p-6">{children}</div>
+        <div className="p-6">{loading ? (loadingSkeleton ?? <DefaultSkeleton />) : children}</div>
       </div>
     </div>,
     document.body,
