@@ -1,23 +1,29 @@
 import { useNavigate } from 'react-router-dom';
+
 import { ConfirmDialog } from '@/components/ui';
 import { useUIStore } from '@/features/ui';
 import { useBoardStore } from '@/features/board';
 import { useColumnStore } from '@/features/column';
 import { useTaskStore } from '@/features/task';
+import { useDeleteBoard } from '@/features/board';
+import to from 'await-to-js';
 
 export function DeleteConfirmModal() {
   const navigate = useNavigate();
   const { activeModal, deleteConfirmData, closeDeleteConfirm, closeModal } = useUIStore();
-  const { deleteBoard } = useBoardStore();
+
+  const id = deleteConfirmData?.id ?? '';
+  const type = deleteConfirmData?.type;
+
+  const { mutateAsync: deleteBoard, isPending: isBoardDeleting } = useDeleteBoard(id);
+
   const { deleteColumn, removeTaskFromColumn } = useColumnStore();
   const { deleteTask, getTasksByColumnId } = useTaskStore();
 
   const isOpen = activeModal === 'delete-confirm' && !!deleteConfirmData;
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     if (!deleteConfirmData) return;
-
-    const { type, id } = deleteConfirmData;
 
     switch (type) {
       case 'task': {
@@ -51,7 +57,8 @@ export function DeleteConfirmModal() {
         //   tasks.forEach((task) => deleteTask(task.id));
         //   deleteColumn(col.id);
         // });
-        deleteBoard(id);
+        const [err] = await to(deleteBoard());
+        if (err) return;
         navigate('/');
         break;
       }
@@ -69,6 +76,7 @@ export function DeleteConfirmModal() {
   return (
     <ConfirmDialog
       isOpen={isOpen}
+      isLoading={isBoardDeleting}
       onClose={closeDeleteConfirm}
       onConfirm={handleConfirm}
       title={`Delete ${typeLabel}`}

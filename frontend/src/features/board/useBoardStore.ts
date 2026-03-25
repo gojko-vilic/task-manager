@@ -10,13 +10,11 @@ interface BoardStore {
 
   // Actions
   updateBoard: (id: string, updates: Partial<Board>) => void;
-  deleteBoard: (id: string) => void;
   addColumnToBoard: (boardId: string, columnId: string) => void;
   removeColumnFromBoard: (boardId: string, columnId: string) => void;
   reorderColumns: (boardId: string, columnIds: string[]) => void;
 
   // Getters
-  getBoardById: (id: string) => Board | undefined;
   getBoardCount: () => number;
 }
 
@@ -32,13 +30,6 @@ export const useBoardStore = create(
           boards: state.boards.map((board) =>
             board.id === id ? { ...board, ...updates, updatedAt: new Date().toISOString() } : board,
           ),
-        }));
-      },
-
-      // Delete a board
-      deleteBoard: (id: string): void => {
-        set((state) => ({
-          boards: state.boards.filter((board) => board.id !== id),
         }));
       },
 
@@ -81,11 +72,6 @@ export const useBoardStore = create(
               : board,
           ),
         }));
-      },
-
-      // Find a board by its ID
-      getBoardById: (id: string): Board | undefined => {
-        return get().boards.find((board) => board.id === id);
       },
 
       // Get total number of boards

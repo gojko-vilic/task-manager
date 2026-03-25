@@ -4,6 +4,8 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 import columnService from './column.service.js';
+import taskService from './task.service.js';
+import { NotFoundError } from './errors.js';
 
 // ---------------------------------------------------------------------------
 // File path for persisted tasks
@@ -29,13 +31,13 @@ export interface CreateBoardInput {
   updatedAt: string;
 }
 
-export const readAllBoards = (): Board[] => {
+const readAllBoards = (): Board[] => {
   if (!fs.existsSync(BOARDS_FILE)) return [];
   const raw = fs.readFileSync(BOARDS_FILE, 'utf-8');
   return JSON.parse(raw) as Board[];
 };
 
-export const createBoard = (input: CreateBoardInput): Board => {
+const createBoard = (input: CreateBoardInput): Board => {
   const boardId = crypto.randomUUID();
   const defaultColumns = ['To Do', 'In Progress', 'Done'];
 
@@ -51,11 +53,11 @@ export const createBoard = (input: CreateBoardInput): Board => {
   };
 };
 
-export const writeBoards = (boards: Board[]): void => {
+const writeBoards = (boards: Board[]): void => {
   fs.writeFileSync(BOARDS_FILE, JSON.stringify(boards, null, 2), 'utf-8');
 };
 
-export const updateBoard = (id: string, updates: Partial<CreateBoardInput>): Board | null => {
+const updateBoard = (id: string, updates: Partial<CreateBoardInput>): Board | null => {
   const boards = readAllBoards();
   const index = boards.findIndex((b) => b.id === id);
   if (index === -1) return null;
@@ -70,12 +72,27 @@ export const updateBoard = (id: string, updates: Partial<CreateBoardInput>): Boa
   return updatedBoard;
 };
 
-export const deleteBoard = (id: string): boolean => {
+const deleteBoard = (id: string): boolean => {
   const boards = readAllBoards();
   const index = boards.findIndex((b) => b.id === id);
-  if (index === -1) return false;
-
+  if (index === -1) throw new NotFoundError('Board not found');
+  // delete all tasks for columns in the board
+  const columns = columnService.readColumnsByBoardId(id);
+  columns.forEach((col) => {
+    taskService.deleteTasksByColumnId(col.id);
+  });
+  // delete all columns for the board
+  columnService.deleteColumnsByBoardId(id);
+  // delete the board
   boards.splice(index, 1);
   writeBoards(boards);
   return true;
+};
+
+export default {
+  createBoard,
+  readAllBoards,
+  updateBoard,
+  deleteBoard,
+  writeBoards,
 };

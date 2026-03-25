@@ -4,7 +4,7 @@ import to from 'await-to-js';
 import { useQueryClient } from '@tanstack/react-query';
 
 import { Modal, Button, Input, Textarea } from '@/components/ui';
-import { boardKey, useBoardStore } from '@/features/board';
+import { boardKey, useBoardStore, useGetBoardById } from '@/features/board';
 import { useUIStore } from '@/features/ui';
 import { boardPath } from '@/routes';
 
@@ -20,11 +20,12 @@ export function BoardForm({ isOpen, onClose, boardId }: BoardFormProps) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
+  const { data: existingBoard } = useGetBoardById(boardId!);
+
   const { mutateAsync: createBoard } = useCreateBoard();
-  const { updateBoard, getBoardById } = useBoardStore();
+  const { updateBoard } = useBoardStore();
   const { openDeleteConfirm } = useUIStore();
 
-  const existingBoard = boardId ? getBoardById(boardId) : null;
   const isEditing = !!existingBoard;
 
   const [title, setTitle] = useState('');

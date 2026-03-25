@@ -7,5 +7,6 @@ export const useGetBoardById = (id: string) => {
   return useQuery({
     queryKey: boardKey.detail(id),
     queryFn: () => boardRepo.getBoardById(id),
+    enabled: !!id, // Only run if id is truthy
   });
 };

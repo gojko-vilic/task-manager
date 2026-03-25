@@ -2,6 +2,7 @@ import fs from 'fs';
 import crypto from 'crypto';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import taskService from './task.service.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const COLUMNS_FILE = path.join(__dirname, 'columns.json');
@@ -55,6 +56,24 @@ const createColumn = (input: CreateColumnInput): Column => {
   return column;
 };
 
+// Delete column and all its tasks
+export const deleteColumn = (columnId: string): void => {
+  const columns = readColumnsByBoardId(columnId);
+  const columnToDelete = columns.find((c) => c.id === columnId);
+  if (!columnToDelete) return;
+  // Remove the column
+  const updatedColumns = columns.filter((c) => c.id !== columnId);
+  writeColumns(updatedColumns);
+};
+
+// Delete all columns for a board (used when deleting a board)
+export const deleteColumnsByBoardId = (boardId: string): void => {
+  const columns = readColumnsByBoardId(boardId);
+  // Remove the columns
+  const remainingColumns = columns.filter((c) => c.boardId !== boardId);
+  writeColumns(remainingColumns);
+};
+
 const writeColumns = (columns: Column[]): void => {
   fs.writeFileSync(COLUMNS_FILE, JSON.stringify(columns, null, 2), 'utf-8');
 };
@@ -64,4 +83,6 @@ export default {
   createColumns,
   writeColumns,
   buildColumn,
+  deleteColumn,
+  deleteColumnsByBoardId,
 };

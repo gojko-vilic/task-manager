@@ -6,7 +6,6 @@ import { Input } from '@/components/ui';
 
 export function Header() {
   const { boardId } = useParams<{ boardId: string }>();
-  // const { getBoardById } = useBoardStore();
   const { toggleSidebar, sidebarOpen, openModal } = useUIStore();
   const { filters, setFilters } = useTaskStore();
 

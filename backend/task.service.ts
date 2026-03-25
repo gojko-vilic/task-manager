@@ -40,7 +40,7 @@ export interface Task {
 // ---------------------------------------------------------------------------
 // CRUD helpers
 // ---------------------------------------------------------------------------
-export const createTask = (input: CreateTaskInput): Task => {
+const createTask = (input: CreateTaskInput): Task => {
   return {
     id: crypto.randomUUID(),
     title: input.title,
@@ -59,24 +59,46 @@ export const createTask = (input: CreateTaskInput): Task => {
 // ---------------------------------------------------------------------------
 // File I/O
 // ---------------------------------------------------------------------------
-export const readTasks = (): Task[] => {
+const readTasks = (): Task[] => {
   if (!fs.existsSync(TASKS_FILE)) return [];
   const raw = fs.readFileSync(TASKS_FILE, 'utf-8');
   return JSON.parse(raw) as Task[];
 };
 
-export const writeTasks = (tasks: Task[]): void => {
+const writeTasks = (tasks: Task[]): void => {
   fs.writeFileSync(TASKS_FILE, JSON.stringify(tasks, null, 2));
 };
 
-export const updateTask = (
-  id: string,
-  updates: Partial<Omit<Task, 'id' | 'createdAt'>>,
-): Task | null => {
+const updateTask = (id: string, updates: Partial<Omit<Task, 'id' | 'createdAt'>>): Task | null => {
   const tasks = readTasks();
   const index = tasks.findIndex((t) => t.id === id);
   if (index === -1) return null;
   tasks[index] = { ...tasks[index], ...updates, updatedAt: new Date().toISOString() };
   writeTasks(tasks);
   return tasks[index];
+};
+
+// Delete task by columnId (used when deleting a column)
+export const deleteTasksByColumnId = (columnId: string): void => {
+  const tasks = readTasks();
+  const remainingTasks = tasks.filter((t) => t.columnId !== columnId);
+  writeTasks(remainingTasks);
+};
+
+const deleteTask = (id: string): boolean => {
+  const tasks = readTasks();
+  const index = tasks.findIndex((t) => t.id === id);
+  if (index === -1) return false;
+  tasks.splice(index, 1);
+  writeTasks(tasks);
+  return true;
+};
+
+export default {
+  createTask,
+  readTasks,
+  writeTasks,
+  updateTask,
+  deleteTask,
+  deleteTasksByColumnId,
 };

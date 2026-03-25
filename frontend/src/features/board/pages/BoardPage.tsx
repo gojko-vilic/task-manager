@@ -11,7 +11,7 @@ import { useGetBoardById } from '../useGetBoardById';
 export function BoardPage() {
   const { boardId } = useParams<{ boardId: string }>();
   const { data: board, isLoading: isBoardLoading } = useGetBoardById(boardId!);
-  const { activeModal, activeTaskId, editingBoardId, closeModal } = useUIStore();
+  const { activeModal, activeTaskId, closeModal } = useUIStore();
 
   if (isBoardLoading) {
     return <LoadingSpinner />;
@@ -57,7 +57,7 @@ export function BoardPage() {
           closeModal();
           useUIStore.getState().setEditingBoard(null);
         }}
-        boardId={editingBoardId}
+        boardId={boardId}
       />
 
       {/* Delete Confirmation Modal */}

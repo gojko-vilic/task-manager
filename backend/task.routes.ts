@@ -1,6 +1,6 @@
 import type { IncomingMessage, ServerResponse } from 'http';
 
-import { createTask, readTasks, writeTasks, updateTask } from './task.service.js';
+import taskService from './task.service.js';
 import type { CreateTaskInput } from './task.service.js';
 import { sendJson } from './utils.js';
 
@@ -8,6 +8,8 @@ export const taskRequestHandler = (req: IncomingMessage, res: ServerResponse): v
   const { method } = req;
   const parsedUrl = new URL(req.url ?? '', `http://${req.headers.host}`);
   const pathname = parsedUrl.pathname;
+
+  // REFACTOR - move all task-related logic to task.service, including filtering by boardId and columnId
 
   if (method === 'POST' && pathname === '/api/tasks') {
     let body = '';
@@ -18,10 +20,10 @@ export const taskRequestHandler = (req: IncomingMessage, res: ServerResponse): v
       console.log('Received data:', body);
       try {
         const input: CreateTaskInput = JSON.parse(body);
-        const newTask = createTask(input);
-        const tasks = readTasks();
+        const newTask = taskService.createTask(input);
+        const tasks = taskService.readTasks();
         tasks.push(newTask);
-        writeTasks(tasks);
+        taskService.writeTasks(tasks);
         console.log('Created task:', newTask);
         sendJson(res, 201, newTask);
       } catch (err) {
@@ -33,7 +35,7 @@ export const taskRequestHandler = (req: IncomingMessage, res: ServerResponse): v
   }
 
   if (method === 'GET' && pathname === '/api/tasks') {
-    let tasks = readTasks();
+    let tasks = taskService.readTasks();
 
     const boardId = parsedUrl.searchParams.get('boardId');
     const columnId = parsedUrl.searchParams.get('columnId');
@@ -57,7 +59,7 @@ export const taskRequestHandler = (req: IncomingMessage, res: ServerResponse): v
     req.on('end', () => {
       try {
         const updates = JSON.parse(body);
-        const updated = updateTask(id, updates);
+        const updated = taskService.updateTask(id, updates);
         if (!updated) {
           sendJson(res, 404, { error: `Task ${id} not found` });
           return;
@@ -75,7 +77,7 @@ export const taskRequestHandler = (req: IncomingMessage, res: ServerResponse): v
   // GET /api/tasks/:id — get a single task by ID
   if (method === 'GET' && taskIdMatch) {
     const id = taskIdMatch[1];
-    const tasks = readTasks();
+    const tasks = taskService.readTasks();
     const task = tasks.find((t) => t.id === id);
     if (task) {
       setTimeout(() => {

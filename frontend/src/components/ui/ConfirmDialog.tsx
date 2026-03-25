@@ -13,6 +13,19 @@ interface ConfirmDialogProps {
   isLoading?: boolean;
 }
 
+const LoadingSkeleton = () => (
+  <div className="space-y-4">
+    <div className="h-5 w-3/4 bg-gray-300 rounded" />
+    <div className="h-10 w-full bg-gray-300 rounded" />
+    <div className="h-5 w-1/2 bg-gray-300 rounded" />
+    <div className="h-24 w-full bg-gray-300 rounded" />
+    <div className="flex justify-end gap-3">
+      <div className="h-10 w-20 bg-gray-300 rounded" />
+      <div className="h-10 w-20 bg-gray-300 rounded" />
+    </div>
+  </div>
+);
+
 export function ConfirmDialog({
   isOpen,
   onClose,
@@ -25,7 +38,14 @@ export function ConfirmDialog({
   isLoading = false,
 }: ConfirmDialogProps) {
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={title} size="sm">
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={title}
+      size="sm"
+      loading={isLoading}
+      loadingSkeleton={<LoadingSkeleton />}
+    >
       <div className="space-y-4">
         <p className="text-gray-600">{message}</p>
         <div className="flex justify-end gap-3">
