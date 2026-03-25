@@ -43,13 +43,14 @@ export function DeleteConfirmModal() {
         break;
       }
       case 'board': {
+        // Use api to delete board and all related data, then refetch boards list
         // Delete all columns and tasks for this board
-        const columns = useColumnStore.getState().getColumnsByBoardId(id);
-        columns.forEach((col) => {
-          const tasks = getTasksByColumnId(col.id);
-          tasks.forEach((task) => deleteTask(task.id));
-          deleteColumn(col.id);
-        });
+        // const columns = useColumnStore.getState().getColumnsByBoardId(id);
+        // columns.forEach((col) => {
+        //   const tasks = getTasksByColumnId(col.id);
+        //   tasks.forEach((task) => deleteTask(task.id));
+        //   deleteColumn(col.id);
+        // });
         deleteBoard(id);
         navigate('/');
         break;

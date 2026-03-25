@@ -17,6 +17,7 @@ interface TaskFormProps {
   isOpen: boolean;
   onClose: () => void;
   taskId: string | null;
+  columns: { id: string; title: string }[]; // Pass columns as a prop for the column dropdown
 }
 
 /** Shape of the form fields managed by react-hook-form */
@@ -35,17 +36,16 @@ const priorityOptions = [
   { value: 'high', label: 'High' },
 ];
 
-export function TaskForm({ isOpen, onClose, taskId }: TaskFormProps) {
+export function TaskForm({ isOpen, onClose, taskId, columns }: TaskFormProps) {
   const isEditing = !!taskId;
 
   const { boardId } = useParams<{ boardId: string }>();
-  const { data: existingTask } = useGetTask(taskId);
+  const { data: existingTask, isLoading: isTaskLoading } = useGetTask(taskId);
   const { mutate: updateTask } = useUpdateTask(boardId || '');
-  const { getColumnsByBoardId, addTaskToColumn, removeTaskFromColumn } = useColumnStore();
+  const { addTaskToColumn, removeTaskFromColumn } = useColumnStore();
   const { openDeleteConfirm } = useUIStore();
   const { mutateAsync: createTask } = useCreateTask();
 
-  const columns = boardId ? getColumnsByBoardId(boardId) : [];
   const firstColumnId = columns[0]?.id ?? '';
 
   // ── react-hook-form setup ──────────────────────────────
@@ -103,7 +103,7 @@ export function TaskForm({ isOpen, onClose, taskId }: TaskFormProps) {
       }
       setNewLabelName('');
     }
-  }, [isOpen, taskId, firstColumnId, reset]);
+  }, [isOpen, taskId, firstColumnId, reset, existingTask]);
 
   // ── Submit handler — receives validated data from RHF ──
   const onSubmit = async (data: TaskFormValues) => {
@@ -177,12 +177,61 @@ export function TaskForm({ isOpen, onClose, taskId }: TaskFormProps) {
     label: col.title,
   }));
 
+  const LoadingSkeleton = () => (
+    <div className="animate-pulse space-y-4">
+      {/* Title */}
+      <div>
+        <div className="h-4 bg-gray-200 rounded w-12 mb-1" />
+        <div className="h-10 bg-gray-200 rounded w-full" />
+      </div>
+      {/* Description */}
+      <div>
+        <div className="h-4 bg-gray-200 rounded w-24 mb-1" />
+        <div className="h-[4.5rem] bg-gray-200 rounded w-full" />
+      </div>
+      {/* Priority + Column */}
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <div className="h-4 bg-gray-200 rounded w-16 mb-1" />
+          <div className="h-10 bg-gray-200 rounded w-full" />
+        </div>
+        <div>
+          <div className="h-4 bg-gray-200 rounded w-16 mb-1" />
+          <div className="h-10 bg-gray-200 rounded w-full" />
+        </div>
+      </div>
+      {/* Due Date */}
+      <div>
+        <div className="h-4 bg-gray-200 rounded w-20 mb-1" />
+        <div className="h-10 bg-gray-200 rounded w-full" />
+      </div>
+      {/* Labels */}
+      <div>
+        <div className="h-4 bg-gray-200 rounded w-14 mb-1" />
+        <div className="flex gap-2">
+          <div className="h-10 bg-gray-200 rounded flex-1" />
+          <div className="h-10 bg-gray-200 rounded w-16" />
+        </div>
+      </div>
+      {/* Actions */}
+      <div className="flex justify-between pt-4">
+        <div className="h-10 bg-gray-200 rounded w-20" />
+        <div className="flex gap-2">
+          <div className="h-10 bg-gray-200 rounded w-20" />
+          <div className="h-10 bg-gray-200 rounded w-28" />
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <Modal
       isOpen={isOpen}
       onClose={onClose}
       title={isEditing ? 'Edit Task' : 'Create Task'}
       size="lg"
+      loading={isTaskLoading}
+      loadingSkeleton={<LoadingSkeleton />}
     >
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <Input

@@ -47,6 +47,7 @@ export function BoardPage() {
         isOpen={activeModal === 'create-task' || activeModal === 'edit-task'}
         onClose={closeModal}
         taskId={activeTaskId}
+        columns={board.columns}
       />
 
       {/* Board Modal */}

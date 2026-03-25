@@ -71,4 +71,21 @@ export const taskRequestHandler = (req: IncomingMessage, res: ServerResponse): v
     });
     return;
   }
+
+  // GET /api/tasks/:id — get a single task by ID
+  if (method === 'GET' && taskIdMatch) {
+    const id = taskIdMatch[1];
+    const tasks = readTasks();
+    const task = tasks.find((t) => t.id === id);
+    if (task) {
+      setTimeout(() => {
+        sendJson(res, 200, task);
+      }, 2000); // Simulate network delay
+    } else {
+      sendJson(res, 404, { error: 'Task not found' });
+    }
+    return;
+  }
+
+  sendJson(res, 404, { error: `Route ${method} ${pathname} not found` });
 };

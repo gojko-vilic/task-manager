@@ -19,7 +19,6 @@ interface ColumnStore {
 
   // Getters
   getColumnById: (id: string) => Column | undefined;
-  getColumnsByBoardId: (boardId: string) => Column[];
   getColumnCount: (boardId: string) => number;
 }
 
@@ -106,13 +105,6 @@ export const useColumnStore = create(
       // Find a column by its ID
       getColumnById: (id: string): Column | undefined => {
         return get().columns.find((column) => column.id === id);
-      },
-
-      // Get all columns for a board, sorted by order
-      getColumnsByBoardId: (boardId: string): Column[] => {
-        return get()
-          .columns.filter((column) => column.boardId === boardId)
-          .sort((a, b) => a.order - b.order);
       },
 
       // Get the number of columns in a board
