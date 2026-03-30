@@ -2,7 +2,6 @@ import fs from 'fs';
 import crypto from 'crypto';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import taskService from './task.service.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const COLUMNS_FILE = path.join(__dirname, 'columns.json');
@@ -11,7 +10,6 @@ interface Column {
   id: string;
   boardId: string;
   title: string;
-  taskIds: string[];
   createdAt: string;
   updatedAt: string;
 }
@@ -21,9 +19,16 @@ export interface CreateColumnInput {
   title: string;
 }
 
+const readAllColumns = (): Column[] => {
+  if (!fs.existsSync(COLUMNS_FILE)) return [];
+  const raw = fs.readFileSync(COLUMNS_FILE, 'utf-8');
+  return JSON.parse(raw) as Column[];
+};
+
 const readColumnsByBoardId = (boardId: string): Column[] => {
   if (!fs.existsSync(COLUMNS_FILE)) return [];
   const raw = fs.readFileSync(COLUMNS_FILE, 'utf-8');
+  console.log('RAW', raw);
   const columns = JSON.parse(raw) as Column[];
   return columns.filter((c) => c.boardId === boardId);
 };
@@ -33,7 +38,6 @@ const buildColumn = (input: CreateColumnInput): Column => {
     id: crypto.randomUUID(),
     boardId: input.boardId,
     title: input.title,
-    taskIds: [],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
@@ -42,7 +46,9 @@ const buildColumn = (input: CreateColumnInput): Column => {
 // Used by board.service — creates multiple columns in one write
 export const createColumns = (boardId: string, titles: string[]): Column[] => {
   const newColumns = titles.map((title) => buildColumn({ boardId, title }));
-  const existingColumns = readColumnsByBoardId(boardId);
+  const existingColumns = readAllColumns();
+  console.log('existingColumns', existingColumns);
+
   writeColumns([...existingColumns, ...newColumns]);
   return newColumns;
 };
