@@ -57,7 +57,7 @@ export function BoardPage() {
           closeModal();
           useUIStore.getState().setEditingBoard(null);
         }}
-        boardId={boardId}
+        boardId={activeModal === 'edit-board' ? boardId : null}
       />
 
       {/* Delete Confirmation Modal */}

@@ -27,6 +27,7 @@ export interface Task {
   id: string;
   title: string;
   description: string;
+  order: number;
   priority: 'low' | 'medium' | 'high';
   status: string;
   labels: string[];
@@ -45,6 +46,7 @@ const createTask = (input: CreateTaskInput): Task => {
     id: crypto.randomUUID(),
     title: input.title,
     description: input.description ?? '',
+    order: setOrderForNewTask(readTasks(), input.columnId ?? ''),
     priority: input.priority ?? 'medium',
     status: input.status ?? 'todo',
     labels: input.labels ?? [],
@@ -54,6 +56,15 @@ const createTask = (input: CreateTaskInput): Task => {
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
+};
+
+// loop trough tasks and when creating new task, set its order to max order in the column + 1
+const setOrderForNewTask = (tasks: Task[], columnId: string): number => {
+  const columnTasks = tasks.filter((t) => t.columnId === columnId);
+  if (columnTasks.length === 0) return 0;
+  const maxOrder = Math.max(...columnTasks.map((t) => t.order));
+  console.log('MAX ORDER', maxOrder);
+  return maxOrder + 1;
 };
 
 // ---------------------------------------------------------------------------

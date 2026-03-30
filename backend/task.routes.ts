@@ -80,9 +80,7 @@ export const taskRequestHandler = (req: IncomingMessage, res: ServerResponse): v
     const tasks = taskService.readTasks();
     const task = tasks.find((t) => t.id === id);
     if (task) {
-      setTimeout(() => {
-        sendJson(res, 200, task);
-      }, 2000); // Simulate network delay
+      sendJson(res, 200, task);
     } else {
       sendJson(res, 404, { error: 'Task not found' });
     }

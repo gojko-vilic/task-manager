@@ -20,13 +20,15 @@ export function BoardForm({ isOpen, onClose, boardId }: BoardFormProps) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  const { data: existingBoard } = useGetBoardById(boardId!);
+  const { data: boardData } = useGetBoardById(boardId ?? '');
+  const existingBoard = boardId ? boardData : undefined;
+  const { activeModal } = useUIStore();
 
   const { mutateAsync: createBoard } = useCreateBoard();
   const { updateBoard } = useBoardStore();
   const { openDeleteConfirm } = useUIStore();
 
-  const isEditing = !!existingBoard;
+  const isEditing = !!existingBoard && activeModal === 'edit-board';
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
