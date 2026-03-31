@@ -1,13 +1,15 @@
-import http from 'http';
+import express from 'express';
 
 import { requestHandler } from './routes.js';
 
+const app = express();
+
+app.use(express.json()); // Middleware to parse JSON bodies
+
+app.use(requestHandler);
+
 const PORT = process.env.PORT || 3000;
 
-const server = http.createServer((req, res) => {
-  requestHandler(req, res);
-});
-
-server.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}/`);
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });

@@ -1,17 +1,16 @@
-import type { IncomingMessage, ServerResponse } from 'http';
+import type { Response, Request } from 'express';
 
 import { sendJson } from './utils.js';
 import { taskRequestHandler } from './task.routes.js';
 import { boardRequestHandler } from './board.routes.js';
 
-const setCorsHeaders = (res: ServerResponse): void => {
+const setCorsHeaders = (res: Response): void => {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 };
 
-export const requestHandler = (req: IncomingMessage, res: ServerResponse): void => {
+export const requestHandler = (req: Request, res: Response): void => {
   // Set CORS headers on every response
+
   setCorsHeaders(res);
 
   // Preflight
