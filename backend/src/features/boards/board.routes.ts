@@ -2,8 +2,8 @@ import express from 'express';
 
 import boardService from './board.service.js';
 import type { CreateBoardInput } from './board.service.js';
-import columnService from './column.service.js';
-import { NotFoundError } from './errors.js';
+import columnService from '../columns/column.service.js';
+import { NotFoundError } from '../../middleware/errors.js';
 
 const router = express.Router();
 
@@ -38,14 +38,16 @@ router.get('/api/boards/:id', (req, res) => {
 // Delete board and all related columns and tasks
 router.delete('/api/boards/:id', (req, res) => {
   const { id } = req.params;
+  console.log('ID ==>', id);
   try {
     boardService.deleteBoard(id);
     res.status(204).end();
   } catch (err) {
+    console.log('ERR ===> ', err);
     if (err instanceof NotFoundError) {
       res.status(404).json({ error: 'Board not found' });
     } else {
-      res.status(500).json({ error: 'Internal server error' });
+      res.status(500).json({ error: err instanceof Error ? err.message : 'Internal server error' });
     }
   }
 });

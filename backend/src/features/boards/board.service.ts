@@ -3,15 +3,15 @@ import crypto from 'crypto';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-import columnService from './column.service.js';
-import taskService from './task.service.js';
-import { NotFoundError } from './errors.js';
+import columnService from '../columns/column.service.js';
+import taskService from '../tasks/task.service.js';
+import { NotFoundError } from '../../middleware/errors.js';
 
 // ---------------------------------------------------------------------------
 // File path for persisted tasks
 // ---------------------------------------------------------------------------
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const BOARDS_FILE = path.join(__dirname, 'boards.json');
+const __dirname = path.join(fileURLToPath(import.meta.url));
+const BOARDS_FILE = path.join(__dirname, '../../../data/boards.json');
 
 interface Board {
   id: string;

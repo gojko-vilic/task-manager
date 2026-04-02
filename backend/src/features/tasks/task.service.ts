@@ -7,7 +7,7 @@ import { fileURLToPath } from 'url';
 // File path for persisted tasks
 // ---------------------------------------------------------------------------
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const TASKS_FILE = path.join(__dirname, 'tasks.json');
+const TASKS_FILE = path.join(__dirname, '../../data/tasks.json');
 
 // ---------------------------------------------------------------------------
 // Types
