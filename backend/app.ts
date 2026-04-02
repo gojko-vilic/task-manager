@@ -1,12 +1,16 @@
 import express from 'express';
+import cors from 'cors';
 
-import { requestHandler } from './routes.js';
+import boardRouter from './board.routes.js';
+import taskRouter from './task.routes.js';
 
 const app = express();
 
 app.use(express.json()); // Middleware to parse JSON bodies
+app.use(cors());
 
-app.use(requestHandler);
+app.use(boardRouter);
+app.use(taskRouter);
 
 const PORT = process.env.PORT || 3000;
 
