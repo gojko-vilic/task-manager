@@ -1,26 +1,14 @@
 [
   {
-    "id": "01bffeef-7696-4f15-be7c-b76266deebe7",
-    "title": "test 1",
+    "id": "23b5b4d0-df69-454b-b52e-13299c7d38ce",
+    "title": "router board 1",
     "columnIds": [
-      "5a79e53f-9285-487d-84e5-50c09ab1bdf6",
-      "d57708f0-0571-4656-88a9-7fbd93672860",
-      "e63f5291-2af5-4179-b147-a3314c01fc58"
+      "6be0b587-0246-4a27-80c3-ff829108c269",
+      "d417a664-bc4b-4262-8c7f-701049ebc05a",
+      "96c36501-5e70-4fad-9a34-bf87b927b45a"
     ],
-    "description": "testb1",
-    "createdAt": "2026-03-30T12:26:50.804Z",
-    "updatedAt": "2026-03-30T12:26:50.804Z"
-  },
-  {
-    "id": "bc499c14-a8a1-4977-bab2-2e8c3d6a237e",
-    "title": "test 2",
-    "columnIds": [
-      "6d19cb96-189f-454e-ba03-6a925b1be80e",
-      "769a3bfa-6cd9-40bb-a143-95b19127e429",
-      "049fc6ba-1fe6-4ef3-aa9f-efa8ae3382f9"
-    ],
-    "description": "testb2",
-    "createdAt": "2026-03-30T12:26:58.052Z",
-    "updatedAt": "2026-03-30T12:26:58.052Z"
+    "description": "router board 1",
+    "createdAt": "2026-04-02T11:20:42.564Z",
+    "updatedAt": "2026-04-02T11:20:42.564Z"
   }
 ]
