@@ -1,7 +1,7 @@
 import type { Response, Request } from 'express';
 
-import { sendJson } from './utils.js';
-import { taskRequestHandler } from './task.routes.js';
+import { sendJson } from './src/utils/utils.js';
+import { taskRequestHandler } from './src/features/tasks/task.routes.js';
 
 export const requestHandler = (req: Request, res: Response): void => {
   // Preflight

@@ -15,7 +15,13 @@
     "sourceMap": true
   },
   "include": [
-    "*.ts"
+    "*.ts",
+    "src/features/boards/board.routes.ts",
+    "src/features/columns/column.service.ts",
+    "src/features/tasks/task.routes.ts",
+    "src/features/tasks/task.service.ts",
+    "src/middleware/errors.ts",
+    "src/utils/utils.ts"
   ],
   "exclude": [
     "node_modules",

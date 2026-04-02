@@ -1,8 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 
-import boardRouter from './board.routes.js';
-import taskRouter from './task.routes.js';
+import boardRouter from './src/features/boards/board.routes.js';
+import taskRouter from './src/features/tasks/task.routes.js';
 
 const app = express();
 
