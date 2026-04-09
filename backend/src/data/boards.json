@@ -1,0 +1,14 @@
+[
+  {
+    "id": "3915a9d8-3e0b-4728-b03f-633453bfd7cb",
+    "title": "Store board",
+    "columnIds": [
+      "ddc52a20-08b3-4a44-a106-1530f58d2154",
+      "495c3c74-9126-40e3-afa4-a1c6797d4308",
+      "4ba598bc-7a83-42c4-9b06-0dafdfadd8d6"
+    ],
+    "description": "first express board",
+    "createdAt": "2026-04-02T12:26:08.337Z",
+    "updatedAt": "2026-04-02T12:26:08.337Z"
+  }
+]
